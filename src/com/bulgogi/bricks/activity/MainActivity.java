@@ -1,117 +1,110 @@
 package com.bulgogi.bricks.activity;
 
+import java.util.*;
+
 import android.app.*;
 import android.hardware.*;
-import android.hardware.Camera.CameraInfo;
+import android.hardware.Camera.Size;
 import android.os.*;
+import android.util.*;
 import android.view.*;
 import android.widget.*;
 
 import com.bulgogi.bricks.*;
-import com.bulgogi.bricks.camera.*;
+import com.bulgogi.bricks.controller.*;
+import com.bulgogi.bricks.detector.*;
+import com.bulgogi.bricks.model.*;
+import com.bulgogi.bricks.view.*;
 
 public class MainActivity extends Activity {
-	private Preview mPreview;
 	private Camera mCamera;
-	
-    int mNumberOfCameras;
-    int mCameraCurrentlyLocked;
-    
-    // The first rear facing camera
-    int mDefaultCameraId;
-    
+	private Preview mPreview;
+	private Pattern mPattern;
+	private Plate mPlate;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        
-        // Create a RelativeLayout container that will hold a SurfaceView,
-        // and set it as the content of our activity.
-        FrameLayout container = new FrameLayout(this);
-        OverlayView overlayView = new OverlayView(this);
-        mPreview = new Preview(this, overlayView);
-        container.addView(mPreview);
-        container.addView(overlayView);
-        setContentView(container);
-        
-        // Find the total number of cameras available
-        mNumberOfCameras = Camera.getNumberOfCameras();
-        
-        // Find the ID of the default camera
-		CameraInfo cameraInfo = new CameraInfo();
-		for (int i = 0; i < mNumberOfCameras; i++) {
-			Camera.getCameraInfo(i, cameraInfo);
-			if (cameraInfo.facing == CameraInfo.CAMERA_FACING_BACK) {
-				mNumberOfCameras = i;
-			}
-		}
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+		initModel();
+		
+		// Create a FrameLayout container that will hold a SurfaceView,
+		// and set it as the content of our activity.
+		FrameLayout container = new FrameLayout(this);
+		OverlayView overlayView = new OverlayView(this);
+		mPreview = new Preview(this, new FrameCallback(overlayView, mPlate, mPattern));
+		container.addView(mPreview);
+		container.addView(overlayView);
+		setContentView(container);
 	}
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+	@Override
+	protected void onResume() {
+		super.onResume();
 
-        // Open the default i.e. the first rear facing camera.
-        mCamera = Camera.open();
-        mCameraCurrentlyLocked = mDefaultCameraId;
-        mPreview.setCamera(mCamera);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        // Because the Camera object is a shared resource, it's very
-        // important to release it when the activity is paused.
-        if (mCamera != null) {
-            mPreview.setCamera(null);
-            mCamera.release();
-            mCamera = null;
-        }
-    }
+		// Open the default i.e. the back-facing camera.
+		mCamera = Camera.open();
+		mPreview.setCamera(mCamera);
+	}
 
 	@Override
+	protected void onPause() {
+		super.onPause();
+
+		// Because the Camera object is a shared resource, it's very
+		// important to release it when the activity is paused.
+		if (mCamera != null) {
+			mPreview.setCamera(null);
+			mCamera.release();
+			mCamera = null;
+		}
+	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		
+		releaseModel();
+	}
+
+	private void initModel() {
+		Camera camera = Camera.open();
+		DisplayMetrics dm = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(dm);
+		
+		List<Size> supportedPreviewSizes = camera.getParameters().getSupportedPreviewSizes();
+		Camera.Size size = Preview.getOptimalPreviewSize(supportedPreviewSizes, dm.widthPixels, dm.heightPixels);
+		
+		mPlate = new Plate(size.width, size.height);
+		mPattern = new Pattern();
+		
+		camera.release();
+	}
+	
+	private void releaseModel() {
+		if (mPlate != null) {
+			mPlate.cleanup();
+		}
+		
+		if (mPattern != null) {
+			mPattern.cleanup();
+		}
+	}
+	
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.ac_main, menu);
 		return true;
 	}
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-        case R.id.switch_camera:
-            // check for availability of multiple cameras
-            if (mNumberOfCameras == 1) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setMessage(this.getString(R.string.camera_alert)).setNeutralButton("Close", null);
-                AlertDialog alert = builder.create();
-                alert.show();
-                return true;
-            }
-
-            // OK, we have multiple cameras.
-            // Release this camera -> cameraCurrentlyLocked
-            if (mCamera != null) {
-                mCamera.stopPreview();
-                mPreview.setCamera(null);
-                mCamera.release();
-                mCamera = null;
-            }
-
-            // Acquire the next camera and request Preview to reconfigure parameters.
-			mCamera = Camera.open((mCameraCurrentlyLocked + 1) % mNumberOfCameras);
-			mCameraCurrentlyLocked = (mCameraCurrentlyLocked + 1) % mNumberOfCameras;
-			mPreview.switchCamera(mCamera);
-
-            // Start the preview
-            mCamera.startPreview();
-            return true;
-        default:
-            return super.onOptionsItemSelected(item);
-        }
-    }
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
 }

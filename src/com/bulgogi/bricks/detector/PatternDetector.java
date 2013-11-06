@@ -16,7 +16,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class PatternDetector {
 	private final String TAG = PatternDetector.class.getSimpleName();
 	
-	private final boolean DEBUG = true;
+	private final boolean DEBUG = false;
 	private final int BRICK_THRESHOLD = 120;
 	
 	private CvScalar mStartHSV;

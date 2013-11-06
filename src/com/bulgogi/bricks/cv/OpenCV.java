@@ -41,7 +41,7 @@ public class OpenCV {
 		return threshed;
 	}
 
-	static public void decodeYUV420SP(int[] abgr, byte[] yuv420sp, int width, int height) {
+	static public void decodeYUV420SP(int[] argb, byte[] yuv420sp, int width, int height) {
 		int frameSize = width * height;
 		for (int j = 0, yp = 0; j < height; j++) {
 			int uvp = frameSize + (j >> 1) * width, u = 0, v = 0;
@@ -72,7 +72,7 @@ public class OpenCV {
 				else if (b > 262143)
 					b = 262143;
 
-				abgr[yp] = 0xff000000 | ((b << 6) & 0xff0000) | ((g >> 2) & 0xff00) | ((r >> 10) & 0xff);
+				argb[yp] = 0xff000000 | ((b << 6) & 0xff0000) | ((g >> 2) & 0xff00) | ((r >> 10) & 0xff);
 			}
 		}
 	}
