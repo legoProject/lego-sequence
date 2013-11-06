@@ -18,12 +18,14 @@ public class ToneMatrix {
 	private int counter;
 	private Timer sequencer;
 
+	private AudioTrackSoundPlayer mSoundPlayer;
 	/** Called when the activity is first created. */
 	
 	public ToneMatrix(Context context) {
 		// load up sounds
 		SoundManager.getInstance();
 
+		mSoundPlayer = new AudioTrackSoundPlayer(context);
 		counter = 0;
 
 		// initialise grid to store on/off states
@@ -80,6 +82,7 @@ public class ToneMatrix {
 		
 		for(int i = 0; i < GRID_ROW_COUNT; i++){
 			if(grid[counter][i] == true){
+//				mSoundPlayer.playNote(note);
 				SoundManager.getInstance().playSound(i+1, 1);
 			}
 		}
@@ -91,5 +94,40 @@ public class ToneMatrix {
 			throw new IllegalArgumentException();
 		}
 		this.grid = grid;
+	}
+	
+	private String getNoteName(int idx) {
+		switch (idx) {
+		case 1:
+			return "t_1";
+		case 2:
+			return "t_2";
+		case 3:
+			return "t_3";
+		case 4:
+			return "t_4";
+		case 5:
+			return "t_5";
+		case 6:
+			return "t_6";
+		case 7:
+			return "t_7";
+		case 8:
+			return "t_8";
+		case 9:
+			return "t_9";
+		case 10:
+			return "t_10";
+		case 11:
+			return "t_11";
+		case 12:
+			return "t_12";
+		case 13:
+			return "t_13";
+		case 14:
+			return "t_14";
+		default:
+			return "t_1";
+		}
 	}
 }
