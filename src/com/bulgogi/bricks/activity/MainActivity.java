@@ -25,10 +25,7 @@ public class MainActivity extends Activity {
 	private Preview mPreview;
 	private Pattern mPattern;
 	private Plate mPlate;
-
-	//tone matrix
 	private ToneMatrix mToneMatrix;
-	private boolean isPlaying = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +59,6 @@ public class MainActivity extends Activity {
 		
 		mToneMatrix.prepareToneMatrix(this);
         mToneMatrix.playToneMatrix();
-        isPlaying = true;
 	}
 
 	@Override
@@ -78,8 +74,6 @@ public class MainActivity extends Activity {
 		}
 
 		mToneMatrix.stopToneMatrix();
-		isPlaying = false;
-		
 		mToneMatrix.releaseToneMatrix();
 	}
 	
