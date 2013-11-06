@@ -1,18 +1,32 @@
 package com.bulgogi.bricks.activity;
 
-import android.app.*;
-import android.hardware.*;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
-import android.os.*;
-import android.view.*;
-import android.widget.*;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
 
-import com.bulgogi.bricks.*;
-import com.bulgogi.bricks.camera.*;
+import com.bulgogi.bricks.R;
+import com.bulgogi.bricks.camera.OverlayView;
+import com.bulgogi.bricks.camera.Preview;
+import com.bulgogi.bricks.event.Events;
+import com.bulgogi.bricks.sound.ToneMatrix;
+
+import de.greenrobot.event.EventBus;
 
 public class MainActivity extends Activity {
 	private Preview mPreview;
 	private Camera mCamera;
+	
+	//tone matrix
+	private ToneMatrix tm;
+	private boolean isPlaying = false;
 	
     int mNumberOfCameras;
     int mCameraCurrentlyLocked;
@@ -47,6 +61,10 @@ public class MainActivity extends Activity {
 				mNumberOfCameras = i;
 			}
 		}
+		
+		tm = new ToneMatrix(this);
+		
+		EventBus.getDefault().register(this);
 	}
 
     @Override
@@ -57,6 +75,10 @@ public class MainActivity extends Activity {
         mCamera = Camera.open();
         mCameraCurrentlyLocked = mDefaultCameraId;
         mPreview.setCamera(mCamera);
+        
+        tm.prepareToneMatrix(this);
+		tm.playToneMatrix();
+		isPlaying = true;
     }
 
     @Override
@@ -70,6 +92,11 @@ public class MainActivity extends Activity {
             mCamera.release();
             mCamera = null;
         }
+        
+        tm.stopToneMatrix();
+		isPlaying = false;
+
+		tm.releaseToneMatrix();
     }
 
 	@Override
@@ -113,5 +140,10 @@ public class MainActivity extends Activity {
         default:
             return super.onOptionsItemSelected(item);
         }
+    }
+    
+    public void onEventMainThread(Events.PatternDetact patterns) {
+    	Log.i("MainActivity","onEventMainThread : " + patterns);
+    	tm.setGrid(patterns.getPatterns());
     }
 }

@@ -6,17 +6,18 @@ import android.util.*;
 
 import com.bulgogi.bricks.config.*;
 import com.bulgogi.bricks.cv.*;
-import com.googlecode.javacpp.annotation.*;
-import com.googlecode.javacv.cpp.opencv_core.CvMat;
+import com.bulgogi.bricks.event.Events;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
+import de.greenrobot.event.EventBus;
+
 public class PatternDetector {
 	private final String TAG = PatternDetector.class.getSimpleName();
 	
-	private final boolean DEBUG = true;
+	private final boolean DEBUG = false;
 	private final int BRICK_THRESHOLD = 120;
 	
 	private CvScalar mStartHSV;
@@ -26,20 +27,21 @@ public class PatternDetector {
 	public PatternDetector(CvScalar startHSV, CvScalar endHSV) {
 		mStartHSV = startHSV;
 		mEndHSV = endHSV;
-		mPattern = new boolean[16][16];
+		mPattern = new boolean[14][14];
 	}
 	
 	public void process(final IplImage src, IplImage processed/*, boolean[][] result*/) {
 		IplImage threshed = OpenCV.getThresholdedImageHSV(src, mStartHSV, mEndHSV, true);
 		
-		for (int y = 0; y < Constant.CELL_SIZE; y++) {
-			for (int x = 0; x < Constant.CELL_SIZE; x++) {
+		for (int y = 1; y < Constant.CELL_SIZE-1; y++) {
+			for (int x = 1; x < Constant.CELL_SIZE-1; x++) {
 				int color = pickColor(threshed, x, y);
-				putArray(x, y, color);
+				putArray(x - 1, y - 1, color);
 			}
         }
         
 //		result = mPattern;
+		postPatternEvent();
 		dumpArray();
 		
         cvCvtColor(threshed, processed, CV_GRAY2RGBA);
@@ -83,14 +85,18 @@ public class PatternDetector {
 	
 	private void dumpArray() {
 		String log = "\n********************************\n";
-        for (int y = 0; y < Constant.CELL_SIZE; y++) {
-			for (int x = 0; x < Constant.CELL_SIZE; x++) {
-				log += mPattern[x][y] == true ? "1 " : "0 ";
+        for (int y = 1; y < Constant.CELL_SIZE - 1; y++) {
+			for (int x = 1; x < Constant.CELL_SIZE - 1; x++) {
+				log += mPattern[x-1][y-1] == true ? "1 " : "0 ";
 			}
 			
 			log += "\n";
         }
         log += "********************************\n";
         Log.w(TAG, log);
+	}
+	
+	private void postPatternEvent() {
+		EventBus.getDefault().post(Events.PatternDetact.eventOf(mPattern));
 	}
 }
