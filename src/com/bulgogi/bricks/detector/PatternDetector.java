@@ -27,16 +27,16 @@ public class PatternDetector {
 	public PatternDetector(CvScalar startHSV, CvScalar endHSV) {
 		mStartHSV = startHSV;
 		mEndHSV = endHSV;
-		mPattern = new boolean[14][14];
+		mPattern = new boolean[Constant.CELL_SIZE][Constant.CELL_SIZE];
 	}
 
 	public void process(final IplImage src, IplImage processed) {
 		IplImage threshed = OpenCV.getThresholdedImageHSV(src, mStartHSV, mEndHSV, true);
 
-		for (int y = 1; y < Constant.CELL_SIZE - 1; y++) {
-			for (int x = 1; x < Constant.CELL_SIZE - 1; x++) {
+		for (int y = 0; y < Constant.CELL_SIZE; y++) {
+			for (int x = 0; x < Constant.CELL_SIZE; x++) {
 				int color = pickColor(threshed, x, y);
-				putArray(x - 1, y - 1, color);
+				putArray(x, y, color);
 			}
 		}
 
@@ -84,9 +84,9 @@ public class PatternDetector {
 
 	private void dumpArray() {
 		String log = "\n********************************\n";
-		for (int y = 1; y < Constant.CELL_SIZE - 1; y++) {
-			for (int x = 1; x < Constant.CELL_SIZE - 1; x++) {
-				log += mPattern[x - 1][y - 1] == true ? "1 " : "0 ";
+		for (int y = 0; y < Constant.CELL_SIZE; y++) {
+			for (int x = 0; x < Constant.CELL_SIZE; x++) {
+				log += mPattern[x][y] == true ? "1 " : "0 ";
 			}
 
 			log += "\n";
@@ -95,7 +95,20 @@ public class PatternDetector {
 		Log.w(TAG, log);
 	}
 
+	private boolean[][] getPatternWithoutOutline(boolean[][] pattern) {
+		int cellSize = Constant.CELL_SIZE - 2;
+		boolean[][] patternWithoutOutline = new boolean[cellSize][cellSize];
+		
+		for (int y = 1; y < Constant.CELL_SIZE - 1; y++) {
+			for (int x = 1; x < Constant.CELL_SIZE - 1; x++) {
+				patternWithoutOutline[x - 1][y - 1] = pattern[x][y];
+			}
+		}
+		
+		return patternWithoutOutline;
+	}
+	
 	private void postPatternEvent() {
-		EventBus.getDefault().post(Events.PatternDetect.eventOf(mPattern));
+		EventBus.getDefault().post(Events.PatternDetect.eventOf(getPatternWithoutOutline(mPattern)));
 	}
 }
