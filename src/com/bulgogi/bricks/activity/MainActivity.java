@@ -22,6 +22,7 @@ import de.greenrobot.event.*;
 
 public class MainActivity extends Activity {
 	private Camera mCamera;
+	private FrameCallback mFrameCb;
 	private Preview mPreview;
 	private Pattern mPattern;
 	private Plate mPlate;
@@ -40,7 +41,8 @@ public class MainActivity extends Activity {
 		// and set it as the content of our activity.
 		FrameLayout container = new FrameLayout(this);
 		OverlayView overlayView = new OverlayView(this);
-		mPreview = new Preview(this, new FrameCallback(overlayView, mPlate, mPattern));
+		mFrameCb = new FrameCallback(overlayView, mPlate, mPattern);
+		mPreview = new Preview(this, mFrameCb);
 		container.addView(mPreview);
 		container.addView(overlayView);
 		setContentView(container);
@@ -82,6 +84,7 @@ public class MainActivity extends Activity {
 		super.onDestroy();
 		
 		releaseModel();
+		mFrameCb.cleanup();
 	}
 
 	private void initModel() {
@@ -99,13 +102,8 @@ public class MainActivity extends Activity {
 	}
 	
 	private void releaseModel() {
-		if (mPlate != null) {
-			mPlate.cleanup();
-		}
-		
-		if (mPattern != null) {
-			mPattern.cleanup();
-		}
+		mPlate.cleanup();
+		mPattern.cleanup();
 	}
 	
 	@Override

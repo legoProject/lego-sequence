@@ -26,8 +26,8 @@ public class Plate {
 	}
 	
 	public void cleanup() {
-		cvReleaseImage(mPreprocessedImage);
-		cvReleaseImage(mProcessedImage);
+		mPreprocessedImage.release();
+		mProcessedImage.release();
 	}
 	
 	public Bitmap getPreprocessedBimtap() {

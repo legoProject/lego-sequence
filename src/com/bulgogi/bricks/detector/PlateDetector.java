@@ -65,7 +65,7 @@ public class PlateDetector {
         		contours = contours.h_next();
         }
         			
-        cvReleaseImage(threshed);
+        threshed.release();
 	}
 	
 	private CvSeq rectify(CvSeq approx) {
@@ -149,6 +149,11 @@ public class PlateDetector {
 		cvWarpPerspective(image, perspective, homographyMatrix);
 		
 		Log.i(TAG, "Homography Matrix\n" + homographyMatrix);
+		
+		srcMatrix.release();
+		destMatrix.release();
+		homographyMatrix.release();
+		
 		return perspective;
 	}
 }

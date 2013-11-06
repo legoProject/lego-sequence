@@ -17,7 +17,7 @@ public class Pattern {
 	}
 	
 	public void cleanup() {
-		cvReleaseImage(mProcessedImage);
+		mProcessedImage.release();
 	}
 	
 	public Bitmap getProcessedBitmap() {

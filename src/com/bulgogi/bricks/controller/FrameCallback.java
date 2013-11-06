@@ -69,4 +69,11 @@ public class FrameCallback implements Camera.PreviewCallback {
 	private void update() {
 		mOverlayView.update(mPlate.getPreprocessedBimtap(), mPlate.getProcessedBitmap(), mPattern.getProcessedBitmap());		
 	}
+	
+	public void cleanup() {
+		if (mFrameImage != null) {
+			mFrameImage.release();
+			mFrameImage = null;
+		}
+	}
 }
