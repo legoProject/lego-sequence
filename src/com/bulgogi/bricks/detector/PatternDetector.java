@@ -15,6 +15,8 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class PatternDetector {
 	private final String TAG = PatternDetector.class.getSimpleName();
+	
+	private final boolean DEBUG = true;
 	private final int BRICK_THRESHOLD = 120;
 	
 	private CvScalar mStartHSV;
@@ -48,19 +50,6 @@ public class PatternDetector {
 		mPattern[x][y] = color > BRICK_THRESHOLD ? false : true;		
 	}
 	
-	private void dumpArray() {
-		String log = "\n********************************\n";
-        for (int y = 0; y < Constant.CELL_SIZE; y++) {
-			for (int x = 0; x < Constant.CELL_SIZE; x++) {
-				log += mPattern[x][y] == true ? "1 " : "0 ";
-			}
-			
-			log += "\n";
-        }
-        log += "********************************\n";
-        Log.w(TAG, log);
-	}
-
 	private void drawGrid(IplImage src) {
 		// Draw horizontal lines
 		for (int i = 0; i < Constant.CELL_SIZE; i++) {
@@ -84,8 +73,24 @@ public class PatternDetector {
 		cvSetImageROI(src, rect);
 		color = cvAvg(src, null);
 		cvResetImageROI(src);
-		//Log.e(TAG, "[" + x + ", " + y + "] " + color.val(0));
+		
+		if (DEBUG) {
+			Log.e(TAG, "[" + x + ", " + y + "] " + color.val(0));
+		}
 		
 		return (int) color.val(0);
+	}
+	
+	private void dumpArray() {
+		String log = "\n********************************\n";
+        for (int y = 0; y < Constant.CELL_SIZE; y++) {
+			for (int x = 0; x < Constant.CELL_SIZE; x++) {
+				log += mPattern[x][y] == true ? "1 " : "0 ";
+			}
+			
+			log += "\n";
+        }
+        log += "********************************\n";
+        Log.w(TAG, log);
 	}
 }

@@ -11,36 +11,36 @@ public class OpenCV {
 	static public void IplImageToBitmap(final IplImage image, final Bitmap bitmap) {
 		bitmap.copyPixelsFromBuffer(image.getByteBuffer());
 	}
-	
+
 	static public void BitmapToIplImage(final Bitmap bitmap, final IplImage image) {
 		bitmap.copyPixelsToBuffer(image.getByteBuffer());
 	}
-	
+
 	static public IplImage getThresholdedImageHSV(IplImage bgra, CvScalar start, CvScalar end, boolean blur) {
 		// first convert the image to BGR
 		IplImage bgr = cvCreateImage(cvGetSize(bgra), IPL_DEPTH_8U, 3);
 		cvCvtColor(bgra, bgr, CV_BGRA2BGR);
-		
-		// now convert that to HSV
-        IplImage hsv = cvCreateImage(cvGetSize(bgra), IPL_DEPTH_8U, 3);
-        cvCvtColor(bgr, hsv, CV_BGR2HSV);
-        
-        // threshold the HSV based on the start and end vectors
-        IplImage threshed = cvCreateImage(cvGetSize(bgra), IPL_DEPTH_8U, 1);
-        cvInRangeS(hsv, start, end, threshed);
 
-        if (blur) {
-	        // smooth out the thresholded image
-	        cvSmooth(threshed, threshed, CV_MEDIAN, 13);
-        }
-        
-        // return memory from the images we're done with
-        cvReleaseImage(hsv);
-        cvReleaseImage(bgr);        
-        
+		// now convert that to HSV
+		IplImage hsv = cvCreateImage(cvGetSize(bgra), IPL_DEPTH_8U, 3);
+		cvCvtColor(bgr, hsv, CV_BGR2HSV);
+
+		// threshold the HSV based on the start and end vectors
+		IplImage threshed = cvCreateImage(cvGetSize(bgra), IPL_DEPTH_8U, 1);
+		cvInRangeS(hsv, start, end, threshed);
+
+		if (blur) {
+			// smooth out the thresholded image
+			cvSmooth(threshed, threshed, CV_MEDIAN, 13);
+		}
+
+		// return memory from the images we're done with
+		cvReleaseImage(hsv);
+		cvReleaseImage(bgr);
+
 		return threshed;
 	}
-	
+
 	static public void decodeYUV420SP(int[] abgr, byte[] yuv420sp, int width, int height) {
 		int frameSize = width * height;
 		for (int j = 0, yp = 0; j < height; j++) {
@@ -74,7 +74,7 @@ public class OpenCV {
 
 				abgr[yp] = 0xff000000 | ((b << 6) & 0xff0000) | ((g >> 2) & 0xff00) | ((r >> 10) & 0xff);
 			}
-		}		
+		}
 	}
 
 }

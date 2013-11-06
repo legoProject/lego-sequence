@@ -30,10 +30,10 @@ public class MainActivity extends Activity {
         // Create a RelativeLayout container that will hold a SurfaceView,
         // and set it as the content of our activity.
         FrameLayout container = new FrameLayout(this);
-        ResultsView resultsView = new ResultsView(this);
-        mPreview = new Preview(this, resultsView);
+        OverlayView overlayView = new OverlayView(this);
+        mPreview = new Preview(this, overlayView);
         container.addView(mPreview);
-        container.addView(resultsView);
+        container.addView(overlayView);
         setContentView(container);
         
         // Find the total number of cameras available

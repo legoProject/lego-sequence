@@ -13,8 +13,8 @@ import com.bulgogi.bricks.detector.*;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
-public class ResultsView extends View implements Camera.PreviewCallback {
-	private final String TAG = ResultsView.class.getSimpleName();
+public class OverlayView extends View implements Camera.PreviewCallback {
+	private final String TAG = OverlayView.class.getSimpleName();
 
 	static class Plate {
 		static Bitmap mPreProcessedBitmap;
@@ -53,7 +53,7 @@ public class ResultsView extends View implements Camera.PreviewCallback {
 	
 	private Paint mPaint;
 	
-	public ResultsView(Context context) {
+	public OverlayView(Context context) {
 		super(context);
 		
 		mPlateDetector = new PlateDetector(new CvScalar(100, 100, 100, 0), new CvScalar(120, 255, 255, 0));
