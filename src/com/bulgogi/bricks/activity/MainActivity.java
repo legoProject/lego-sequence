@@ -27,7 +27,7 @@ public class MainActivity extends Activity {
 	private Plate mPlate;
 
 	//tone matrix
-	private ToneMatrix tm;
+	private ToneMatrix mToneMatrix;
 	private boolean isPlaying = false;
 	
 	@Override
@@ -48,8 +48,7 @@ public class MainActivity extends Activity {
 		container.addView(overlayView);
 		setContentView(container);
 		
-		tm = new ToneMatrix(this);
-		
+		mToneMatrix = new ToneMatrix(this);
 		EventBus.getDefault().register(this);
 	}
 
@@ -60,6 +59,10 @@ public class MainActivity extends Activity {
 		// Open the default i.e. the back-facing camera.
 		mCamera = Camera.open();
 		mPreview.setCamera(mCamera);
+		
+		mToneMatrix.prepareToneMatrix(this);
+        mToneMatrix.playToneMatrix();
+        isPlaying = true;
 	}
 
 	@Override
@@ -74,10 +77,10 @@ public class MainActivity extends Activity {
 			mCamera = null;
 		}
 
-		tm.stopToneMatrix();
+		mToneMatrix.stopToneMatrix();
 		isPlaying = false;
 		
-		tm.releaseToneMatrix();
+		mToneMatrix.releaseToneMatrix();
 	}
 	
 	@Override
@@ -127,6 +130,6 @@ public class MainActivity extends Activity {
 	
 	public void onEventMainThread(Events.PatternDetect patterns) {
 	    	Log.i("MainActivity","onEventMainThread : " + patterns);
-	    	tm.setGrid(patterns.getPatterns());
+	    	mToneMatrix.setGrid(patterns.getPatterns());
     }
 }
