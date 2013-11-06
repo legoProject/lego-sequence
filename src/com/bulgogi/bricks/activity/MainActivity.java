@@ -12,9 +12,13 @@ import android.widget.*;
 
 import com.bulgogi.bricks.*;
 import com.bulgogi.bricks.controller.*;
-import com.bulgogi.bricks.detector.*;
+import com.bulgogi.bricks.event.*;
 import com.bulgogi.bricks.model.*;
+import com.bulgogi.bricks.sound.*;
 import com.bulgogi.bricks.view.*;
+
+import de.greenrobot.event.*;
+
 
 public class MainActivity extends Activity {
 	private Camera mCamera;
@@ -22,6 +26,10 @@ public class MainActivity extends Activity {
 	private Pattern mPattern;
 	private Plate mPlate;
 
+	//tone matrix
+	private ToneMatrix tm;
+	private boolean isPlaying = false;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -39,6 +47,10 @@ public class MainActivity extends Activity {
 		container.addView(mPreview);
 		container.addView(overlayView);
 		setContentView(container);
+		
+		tm = new ToneMatrix(this);
+		
+		EventBus.getDefault().register(this);
 	}
 
 	@Override
@@ -61,6 +73,11 @@ public class MainActivity extends Activity {
 			mCamera.release();
 			mCamera = null;
 		}
+
+		tm.stopToneMatrix();
+		isPlaying = false;
+		
+		tm.releaseToneMatrix();
 	}
 	
 	@Override
@@ -107,4 +124,9 @@ public class MainActivity extends Activity {
 			return super.onOptionsItemSelected(item);
 		}
 	}
+	
+	public void onEventMainThread(Events.PatternDetect patterns) {
+	    	Log.i("MainActivity","onEventMainThread : " + patterns);
+	    	tm.setGrid(patterns.getPatterns());
+    }
 }
