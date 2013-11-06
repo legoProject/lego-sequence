@@ -18,15 +18,15 @@ public class OpenCV {
 
 	static public IplImage getThresholdedImageHSV(IplImage bgra, CvScalar start, CvScalar end, boolean blur) {
 		// first convert the image to BGR
-		IplImage bgr = cvCreateImage(cvGetSize(bgra), IPL_DEPTH_8U, 3);
+		IplImage bgr = IplImage.create(cvGetSize(bgra), IPL_DEPTH_8U, 3);
 		cvCvtColor(bgra, bgr, CV_BGRA2BGR);
 
 		// now convert that to HSV
-		IplImage hsv = cvCreateImage(cvGetSize(bgra), IPL_DEPTH_8U, 3);
+		IplImage hsv = IplImage.create(cvGetSize(bgra), IPL_DEPTH_8U, 3);
 		cvCvtColor(bgr, hsv, CV_BGR2HSV);
 
 		// threshold the HSV based on the start and end vectors
-		IplImage threshed = cvCreateImage(cvGetSize(bgra), IPL_DEPTH_8U, 1);
+		IplImage threshed = IplImage.create(cvGetSize(bgra), IPL_DEPTH_8U, 1);
 		cvInRangeS(hsv, start, end, threshed);
 
 		if (blur) {
@@ -35,13 +35,13 @@ public class OpenCV {
 		}
 
 		// return memory from the images we're done with
-		cvReleaseImage(hsv);
-		cvReleaseImage(bgr);
+		bgr.release();
+		hsv.release();
 
 		return threshed;
 	}
 
-	static public void decodeYUV420SP(int[] abgr, byte[] yuv420sp, int width, int height) {
+	static public void decodeYUV420SP(int[] argb, byte[] yuv420sp, int width, int height) {
 		int frameSize = width * height;
 		for (int j = 0, yp = 0; j < height; j++) {
 			int uvp = frameSize + (j >> 1) * width, u = 0, v = 0;
@@ -72,7 +72,7 @@ public class OpenCV {
 				else if (b > 262143)
 					b = 262143;
 
-				abgr[yp] = 0xff000000 | ((b << 6) & 0xff0000) | ((g >> 2) & 0xff00) | ((r >> 10) & 0xff);
+				argb[yp] = 0xff000000 | ((b << 6) & 0xff0000) | ((g >> 2) & 0xff00) | ((r >> 10) & 0xff);
 			}
 		}
 	}

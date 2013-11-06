@@ -16,42 +16,41 @@ import de.greenrobot.event.EventBus;
 
 public class PatternDetector {
 	private final String TAG = PatternDetector.class.getSimpleName();
-	
+
 	private final boolean DEBUG = false;
 	private final int BRICK_THRESHOLD = 120;
-	
+
 	private CvScalar mStartHSV;
 	private CvScalar mEndHSV;
 	private boolean[][] mPattern;
-	
+
 	public PatternDetector(CvScalar startHSV, CvScalar endHSV) {
 		mStartHSV = startHSV;
 		mEndHSV = endHSV;
-		mPattern = new boolean[14][14];
+		mPattern = new boolean[Constant.CELL_SIZE][Constant.CELL_SIZE];
 	}
-	
-	public void process(final IplImage src, IplImage processed/*, boolean[][] result*/) {
+
+	public void process(final IplImage src, IplImage processed) {
 		IplImage threshed = OpenCV.getThresholdedImageHSV(src, mStartHSV, mEndHSV, true);
-		
-		for (int y = 1; y < Constant.CELL_SIZE-1; y++) {
-			for (int x = 1; x < Constant.CELL_SIZE-1; x++) {
+
+		for (int y = 0; y < Constant.CELL_SIZE; y++) {
+			for (int x = 0; x < Constant.CELL_SIZE; x++) {
 				int color = pickColor(threshed, x, y);
-				putArray(x - 1, y - 1, color);
+				putArray(x, y, color);
 			}
-        }
-        
-//		result = mPattern;
+		}
+
 		postPatternEvent();
 		dumpArray();
-		
-        cvCvtColor(threshed, processed, CV_GRAY2RGBA);
-        drawGrid(processed);
+
+		cvCvtColor(threshed, processed, CV_GRAY2RGBA);
+		drawGrid(processed);
 	}
-	
+
 	private void putArray(int x, int y, int color) {
-		mPattern[x][y] = color > BRICK_THRESHOLD ? false : true;		
+		mPattern[x][y] = color > BRICK_THRESHOLD ? false : true;
 	}
-	
+
 	private void drawGrid(IplImage src) {
 		// Draw horizontal lines
 		for (int i = 0; i < Constant.CELL_SIZE; i++) {
@@ -59,7 +58,7 @@ public class PatternDetector {
 			CvPoint pt2 = new CvPoint(i * Constant.CELL_SIZE, Constant.CELL_SIZE * Constant.CELL_SIZE - 1);
 			cvDrawLine(src, pt1, pt2, cvScalar(22, 160, 133, 255), 1, 8, 0);
 		}
-		
+
 		// Draw vertical lines
 		for (int i = 0; i < Constant.CELL_SIZE; i++) {
 			CvPoint pt1 = new CvPoint(0, i * Constant.CELL_SIZE);
@@ -67,36 +66,49 @@ public class PatternDetector {
 			cvDrawLine(src, pt1, pt2, cvScalar(22, 160, 133, 255), 1, 8, 0);
 		}
 	}
-	
+
 	private int pickColor(final IplImage src, int x, int y) {
 		CvScalar color = new CvScalar();
-		
+
 		CvRect rect = new CvRect(x * Constant.CELL_SIZE, y * Constant.CELL_SIZE, Constant.CELL_SIZE, Constant.CELL_SIZE);
 		cvSetImageROI(src, rect);
 		color = cvAvg(src, null);
 		cvResetImageROI(src);
-		
+
 		if (DEBUG) {
 			Log.e(TAG, "[" + x + ", " + y + "] " + color.val(0));
 		}
-		
+
 		return (int) color.val(0);
 	}
-	
+
 	private void dumpArray() {
 		String log = "\n********************************\n";
-        for (int y = 1; y < Constant.CELL_SIZE - 1; y++) {
-			for (int x = 1; x < Constant.CELL_SIZE - 1; x++) {
-				log += mPattern[x-1][y-1] == true ? "1 " : "0 ";
+		for (int y = 0; y < Constant.CELL_SIZE; y++) {
+			for (int x = 0; x < Constant.CELL_SIZE; x++) {
+				log += mPattern[x][y] == true ? "1 " : "0 ";
 			}
-			
+
 			log += "\n";
-        }
-        log += "********************************\n";
-        Log.w(TAG, log);
+		}
+		log += "********************************\n";
+		Log.w(TAG, log);
+	}
+
+	private boolean[][] getPatternWithoutOutline(boolean[][] pattern) {
+		int cellSize = Constant.CELL_SIZE - 2;
+		boolean[][] patternWithoutOutline = new boolean[cellSize][cellSize];
+		
+		for (int y = 1; y < Constant.CELL_SIZE - 1; y++) {
+			for (int x = 1; x < Constant.CELL_SIZE - 1; x++) {
+				patternWithoutOutline[x - 1][y - 1] = pattern[x][y];
+			}
+		}
+		
+		return patternWithoutOutline;
 	}
 	
 	private void postPatternEvent() {
-		EventBus.getDefault().post(Events.PatternDetact.eventOf(mPattern));
+		EventBus.getDefault().post(Events.PatternDetect.eventOf(getPatternWithoutOutline(mPattern)));
 	}
 }

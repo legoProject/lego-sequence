@@ -36,9 +36,9 @@ public class PlateDetector {
 		mStorage = CvMemStorage.create();
 	}
 	
-	public void process(final IplImage src, IplImage preProcessed, IplImage processed) {
+	public void process(final IplImage src, IplImage preprocessed, IplImage processed) {
 		IplImage threshed = OpenCV.getThresholdedImageHSV(src, mStartHSV, mEndHSV, true);
-        cvCvtColor(threshed, preProcessed, CV_GRAY2RGBA);
+        cvCvtColor(threshed, preprocessed, CV_GRAY2RGBA);
         
 		CvSeq contours = new CvSeq();
 		cvFindContours(threshed, mStorage, contours, Loader.sizeof(CvContour.class), CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, cvPoint(0, 0));
@@ -48,13 +48,13 @@ public class PlateDetector {
         		if (area > mAreaThreshold) {
 				CvSeq points = cvApproxPoly(contours, Loader.sizeof(CvContour.class), mStorage, CV_POLY_APPROX_DP, cvContourPerimeter(contours) * 0.05, 0);
 				if (points.total() == 4) {
-					cvDrawContours(preProcessed, points, new CvScalar(41, 128, 185, 255), new CvScalar(41, 128, 185, 255), 1, CV_FILLED, 8);
+					cvDrawContours(preprocessed, points, new CvScalar(41, 128, 185, 255), new CvScalar(41, 128, 185, 255), 1, CV_FILLED, 8);
 					CvSeq rect = rectify(points);
 					perspectiveTransformAndWarp(src, processed, rect);
 					
 					for (int i = 0; i < points.total(); i++) {
 						CvPoint point = new CvPoint(cvGetSeqElem(points, i));
-						cvDrawCircle(preProcessed, point, 20, new CvScalar(255, 255, 255, 255), -1, 8, 0);
+						cvDrawCircle(preprocessed, point, 20, new CvScalar(255, 255, 255, 255), -1, 8, 0);
 					}
 				}
 				
@@ -65,7 +65,7 @@ public class PlateDetector {
         		contours = contours.h_next();
         }
         			
-        cvReleaseImage(threshed);
+        threshed.release();
 	}
 	
 	private CvSeq rectify(CvSeq approx) {
@@ -149,6 +149,7 @@ public class PlateDetector {
 		cvWarpPerspective(image, perspective, homographyMatrix);
 		
 		Log.i(TAG, "Homography Matrix\n" + homographyMatrix);
+		
 		return perspective;
 	}
 }

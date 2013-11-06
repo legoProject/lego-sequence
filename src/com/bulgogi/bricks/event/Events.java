@@ -1,15 +1,15 @@
 package com.bulgogi.bricks.event;
 
 public class Events {
-	public static class PatternDetact {
+	public static class PatternDetect {
 		private final boolean[][] mPattern;
 		
-		private PatternDetact(boolean[][] pattern) {
+		private PatternDetect(boolean[][] pattern) {
 			mPattern = pattern;
 		}
 		
-		public static PatternDetact eventOf(boolean[][] pattern) {
-			return new PatternDetact(pattern);
+		public static PatternDetect eventOf(boolean[][] pattern) {
+			return new PatternDetect(pattern);
 		}
 		
 		@Override

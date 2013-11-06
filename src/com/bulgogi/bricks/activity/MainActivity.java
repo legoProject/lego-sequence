@@ -1,149 +1,127 @@
 package com.bulgogi.bricks.activity;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.hardware.Camera;
-import android.hardware.Camera.CameraInfo;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.FrameLayout;
+import java.util.*;
 
-import com.bulgogi.bricks.R;
-import com.bulgogi.bricks.camera.OverlayView;
-import com.bulgogi.bricks.camera.Preview;
-import com.bulgogi.bricks.event.Events;
-import com.bulgogi.bricks.sound.ToneMatrix;
+import android.app.*;
+import android.hardware.*;
+import android.hardware.Camera.Size;
+import android.os.*;
+import android.util.*;
+import android.view.*;
+import android.widget.*;
 
-import de.greenrobot.event.EventBus;
+import com.bulgogi.bricks.*;
+import com.bulgogi.bricks.controller.*;
+import com.bulgogi.bricks.event.*;
+import com.bulgogi.bricks.model.*;
+import com.bulgogi.bricks.sound.*;
+import com.bulgogi.bricks.view.*;
+
+import de.greenrobot.event.*;
+
 
 public class MainActivity extends Activity {
-	private Preview mPreview;
 	private Camera mCamera;
+	private FrameCallback mFrameCb;
+	private Preview mPreview;
+	private Pattern mPattern;
+	private Plate mPlate;
+	private ToneMatrix mToneMatrix;
 	
-	//tone matrix
-	private ToneMatrix tm;
-	private boolean isPlaying = false;
-	
-    int mNumberOfCameras;
-    int mCameraCurrentlyLocked;
-    
-    // The first rear facing camera
-    int mDefaultCameraId;
-    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        
-        // Create a RelativeLayout container that will hold a SurfaceView,
-        // and set it as the content of our activity.
-        FrameLayout container = new FrameLayout(this);
-        OverlayView overlayView = new OverlayView(this);
-        mPreview = new Preview(this, overlayView);
-        container.addView(mPreview);
-        container.addView(overlayView);
-        setContentView(container);
-        
-        // Find the total number of cameras available
-        mNumberOfCameras = Camera.getNumberOfCameras();
-        
-        // Find the ID of the default camera
-		CameraInfo cameraInfo = new CameraInfo();
-		for (int i = 0; i < mNumberOfCameras; i++) {
-			Camera.getCameraInfo(i, cameraInfo);
-			if (cameraInfo.facing == CameraInfo.CAMERA_FACING_BACK) {
-				mNumberOfCameras = i;
-			}
-		}
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+		initModel();
 		
-		tm = new ToneMatrix(this);
+		// Create a FrameLayout container that will hold a SurfaceView,
+		// and set it as the content of our activity.
+		FrameLayout container = new FrameLayout(this);
+		OverlayView overlayView = new OverlayView(this);
+		mFrameCb = new FrameCallback(overlayView, mPlate, mPattern);
+		mPreview = new Preview(this, mFrameCb);
+		container.addView(mPreview);
+		container.addView(overlayView);
+		setContentView(container);
 		
+		mToneMatrix = new ToneMatrix(this);
 		EventBus.getDefault().register(this);
 	}
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+	@Override
+	protected void onResume() {
+		super.onResume();
 
-        // Open the default i.e. the first rear facing camera.
-        mCamera = Camera.open();
-        mCameraCurrentlyLocked = mDefaultCameraId;
-        mPreview.setCamera(mCamera);
-        
-        tm.prepareToneMatrix(this);
-		tm.playToneMatrix();
-		isPlaying = true;
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        // Because the Camera object is a shared resource, it's very
-        // important to release it when the activity is paused.
-        if (mCamera != null) {
-            mPreview.setCamera(null);
-            mCamera.release();
-            mCamera = null;
-        }
-        
-        tm.stopToneMatrix();
-		isPlaying = false;
-
-		tm.releaseToneMatrix();
-    }
+		// Open the default i.e. the back-facing camera.
+		mCamera = Camera.open();
+		mPreview.setCamera(mCamera);
+		
+		mToneMatrix.prepareToneMatrix(this);
+        mToneMatrix.playToneMatrix();
+	}
 
 	@Override
+	protected void onPause() {
+		super.onPause();
+
+		// Because the Camera object is a shared resource, it's very
+		// important to release it when the activity is paused.
+		if (mCamera != null) {
+			mPreview.setCamera(null);
+			mCamera.release();
+			mCamera = null;
+		}
+
+		mToneMatrix.stopToneMatrix();
+		mToneMatrix.releaseToneMatrix();
+	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		
+		releaseModel();
+		mFrameCb.cleanup();
+	}
+
+	private void initModel() {
+		Camera camera = Camera.open();
+		DisplayMetrics dm = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(dm);
+		
+		List<Size> supportedPreviewSizes = camera.getParameters().getSupportedPreviewSizes();
+		Camera.Size size = Preview.getOptimalPreviewSize(supportedPreviewSizes, dm.widthPixels, dm.heightPixels);
+		
+		mPlate = new Plate(size.width, size.height);
+		mPattern = new Pattern();
+		
+		camera.release();
+	}
+	
+	private void releaseModel() {
+		mPlate.cleanup();
+		mPattern.cleanup();
+	}
+	
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.ac_main, menu);
 		return true;
 	}
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-        case R.id.switch_camera:
-            // check for availability of multiple cameras
-            if (mNumberOfCameras == 1) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setMessage(this.getString(R.string.camera_alert)).setNeutralButton("Close", null);
-                AlertDialog alert = builder.create();
-                alert.show();
-                return true;
-            }
-
-            // OK, we have multiple cameras.
-            // Release this camera -> cameraCurrentlyLocked
-            if (mCamera != null) {
-                mCamera.stopPreview();
-                mPreview.setCamera(null);
-                mCamera.release();
-                mCamera = null;
-            }
-
-            // Acquire the next camera and request Preview to reconfigure parameters.
-			mCamera = Camera.open((mCameraCurrentlyLocked + 1) % mNumberOfCameras);
-			mCameraCurrentlyLocked = (mCameraCurrentlyLocked + 1) % mNumberOfCameras;
-			mPreview.switchCamera(mCamera);
-
-            // Start the preview
-            mCamera.startPreview();
-            return true;
-        default:
-            return super.onOptionsItemSelected(item);
-        }
-    }
-    
-    public void onEventMainThread(Events.PatternDetact patterns) {
-    	Log.i("MainActivity","onEventMainThread : " + patterns);
-    	tm.setGrid(patterns.getPatterns());
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+	
+	public void onEventMainThread(Events.PatternDetect patterns) {
+	    	Log.i("MainActivity","onEventMainThread : " + patterns);
+	    	mToneMatrix.setGrid(patterns.getPatterns());
     }
 }
