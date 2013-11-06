@@ -150,10 +150,6 @@ public class PlateDetector {
 		
 		Log.i(TAG, "Homography Matrix\n" + homographyMatrix);
 		
-		srcMatrix.release();
-		destMatrix.release();
-		homographyMatrix.release();
-		
 		return perspective;
 	}
 }
