@@ -50,6 +50,7 @@ public class SequencialToneMatrix implements ToneMatrix{
 	@Override
 	public void releaseToneMatrix() {
 		for (int i = 0; i < tones.length; i++) {
+			this.tones[i].pause();
 			this.tones[i].dispose();
 		}
 		this.tones = null;
@@ -90,7 +91,7 @@ public class SequencialToneMatrix implements ToneMatrix{
 	}
 
 	@Override
-	public synchronized void setGrid(boolean [][] grid) {
+	public synchronized void changeInputGrid(boolean [][] grid) {
 
 		if (grid.length > GRID_ROW_COUNT || grid[0].length > GRID_ROW_COUNT) {
 			throw new IllegalArgumentException();

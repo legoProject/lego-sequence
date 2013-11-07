@@ -108,7 +108,7 @@ public class PatternDetector {
 		return patternWithoutOutline;
 	}
 	
-	private boolean[][] getPatternForMix(boolean[][] pattern) {
+	private boolean[][] getTestPatternForMix(boolean[][] pattern) {
 		int cellSize = Constant.CELL_SIZE - 12;
 		boolean[][] patternWithoutOutline = new boolean[cellSize][cellSize];
 		
@@ -122,6 +122,6 @@ public class PatternDetector {
 	}
 	
 	private void postPatternEvent() {
-		EventBus.getDefault().post(Events.PatternDetect.eventOf(getPatternForMix(mPattern)));
+		EventBus.getDefault().post(Events.PatternDetect.eventOf(getPatternWithoutOutline(mPattern)));
 	}
 }
