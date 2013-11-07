@@ -1,26 +1,35 @@
 package com.bulgogi.bricks.activity;
 
-import java.util.*;
+import java.util.List;
 
-import android.app.*;
-import android.hardware.*;
+import android.hardware.Camera;
 import android.hardware.Camera.Size;
-import android.os.*;
-import android.util.*;
-import android.view.*;
-import android.widget.*;
+import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
 
-import com.bulgogi.bricks.*;
-import com.bulgogi.bricks.controller.*;
-import com.bulgogi.bricks.event.*;
-import com.bulgogi.bricks.model.*;
-import com.bulgogi.bricks.sound.*;
-import com.bulgogi.bricks.view.*;
+import com.badlogic.gdx.backends.android.AndroidApplication;
+import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
+import com.bulgogi.bricks.R;
+import com.bulgogi.bricks.controller.FrameCallback;
+import com.bulgogi.bricks.event.Events;
+import com.bulgogi.bricks.model.Pattern;
+import com.bulgogi.bricks.model.Plate;
+import com.bulgogi.bricks.sound.MixToneMatrix;
+import com.bulgogi.bricks.sound.ToneMatrix;
+import com.bulgogi.bricks.view.OverlayView;
+import com.bulgogi.bricks.view.Preview;
+import com.kai.gdxexample.GdxExample;
 
-import de.greenrobot.event.*;
+import de.greenrobot.event.EventBus;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends AndroidApplication {
 	private Camera mCamera;
 	private FrameCallback mFrameCb;
 	private Preview mPreview;
@@ -31,12 +40,17 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		initModel();
 		
+		AndroidApplicationConfiguration cfg = new AndroidApplicationConfiguration();
+		cfg.useGL20 = false;
+		
+		initialize(new GdxExample(), cfg);
 		// Create a FrameLayout container that will hold a SurfaceView,
 		// and set it as the content of our activity.
 		FrameLayout container = new FrameLayout(this);
@@ -47,10 +61,11 @@ public class MainActivity extends Activity {
 		container.addView(overlayView);
 		setContentView(container);
 		
-		mToneMatrix = new ToneMatrix(this);
+		//mToneMatrix = new SequencialToneMatrix(this);
+		mToneMatrix = new MixToneMatrix(this);
 		EventBus.getDefault().register(this);
 	}
-
+	
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -59,7 +74,8 @@ public class MainActivity extends Activity {
 		mCamera = Camera.open();
 		mPreview.setCamera(mCamera);
 		
-		mToneMatrix.prepareToneMatrix(this);
+		//mToneMatrix.prepareToneMatrix(this);
+		mToneMatrix.loadSound();
         mToneMatrix.playToneMatrix();
 	}
 
@@ -74,8 +90,6 @@ public class MainActivity extends Activity {
 			mCamera.release();
 			mCamera = null;
 		}
-
-		mToneMatrix.stopToneMatrix();
 		mToneMatrix.releaseToneMatrix();
 	}
 	
@@ -85,6 +99,7 @@ public class MainActivity extends Activity {
 		
 		releaseModel();
 		mFrameCb.cleanup();
+		
 	}
 
 	private void initModel() {
@@ -122,6 +137,15 @@ public class MainActivity extends Activity {
 	
 	public void onEventMainThread(Events.PatternDetect patterns) {
 	    	Log.i("MainActivity","onEventMainThread : " + patterns);
+	    	
+	    	//test
+	    	boolean[][] testGrid = {
+	    			{true,false,false,true},
+	    			{true,false,false,false},
+	    			{false,true,true,false},
+	    			{true,false,false,true}
+	    	};
 	    	mToneMatrix.setGrid(patterns.getPatterns());
+	    	//mToneMatrix.setGrid(testGrid);
     }
 }
