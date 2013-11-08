@@ -77,9 +77,9 @@ public class SequencialToneMatrix implements ToneMatrix{
 		}, 0, NEXT_TONE_PLAYBACK_OFFSET);
 	}
 
-	private void playSequencerLine(){
+	private void playSequencerLine(){		
 		
-		Log.e("test", "playSequecerLine");
+		//Log.e("test", "playSequecerLine");
 
 		counter++;
 		if(counter >= GRID_COL_COUNT) { 

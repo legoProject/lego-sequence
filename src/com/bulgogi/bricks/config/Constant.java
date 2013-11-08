@@ -4,6 +4,10 @@ public class Constant {
 	private Constant() {
 	}
 
+	public static enum SEQUENCE_TYPE {
+		BLUE, GREEN, CYAN 
+	};
+	
 	public static final int CELL_SIZE = 16;
 	public static final int GRID_SIZE = CELL_SIZE * CELL_SIZE;
 	
