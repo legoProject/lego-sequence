@@ -2,9 +2,9 @@ package com.bulgogi.bricks.sound;
 
 public enum InstrumentType {
 	
-	DRUM(1),
-	TONE(2),
-	MIX(3);
+	TONE(0),
+	DRUM(1),	
+	MIX(2);
 	
 	private final int value;
 	

@@ -8,10 +8,15 @@ import android.util.*;
 import com.bulgogi.bricks.config.*;
 import com.bulgogi.bricks.cv.*;
 import com.bulgogi.bricks.detector.*;
+import com.bulgogi.bricks.event.Events.SoundRelease;
+import com.bulgogi.bricks.event.Events.SoundSwitching;
 import com.bulgogi.bricks.model.*;
+import com.bulgogi.bricks.sound.*;
 import com.bulgogi.bricks.view.*;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
+
+import de.greenrobot.event.*;
 
 public class FrameCallback implements Camera.PreviewCallback {
 	private final String TAG = FrameCallback.class.getSimpleName();
@@ -55,7 +60,7 @@ public class FrameCallback implements Camera.PreviewCallback {
 			if (mFrameImage == null) {
 				mFrameImage = IplImage.create(size.width, size.height, IPL_DEPTH_8U, 4);
 			}
-            
+			
             processImage(data, size.width, size.height);
             update();
             
@@ -66,6 +71,8 @@ public class FrameCallback implements Camera.PreviewCallback {
 	}
 	
 	private void processImage(final byte[] data, int width, int height) {
+		Log.v(TAG, "processImage " + width + " x " + height);
+		
 		boolean mStopped = true;
 		int[] argb = new int[width * height];
 		OpenCV.decodeYUV420SP(argb, data, width, height);
@@ -80,9 +87,10 @@ public class FrameCallback implements Camera.PreviewCallback {
 				mStopped = false;
 				mCurrentSequence = sequence;
 				if (mPreviousSequence != mCurrentSequence) {
-					Log.e(TAG, "POST SWITCH! " + i);
 					mPreviousSequence = mCurrentSequence;
-					// POST SWITCH!
+					
+					Log.i(TAG, "POST SWITCHED! " + i);
+					sendEventPlateSwitched(i);
 				}
 				
 				break;
@@ -90,15 +98,15 @@ public class FrameCallback implements Camera.PreviewCallback {
 		}
 		
 		if (mStopped && mCurrentSequence != null) {
-			// POST STOP!
-			Log.e(TAG, "POST STOPPED! ");
 			mCurrentSequence = null;
 			mPreviousSequence = null;
+			
+			Log.i(TAG, "POST STOPPED!");
+			EventBus.getDefault().post(SoundRelease.eventOf());
 		}
 		
 		
 		if (mCurrentSequence != null) {
-			mCurrentSequence.getPlateDetector().process(mFrameImage, mPlate.getPreprocessedImage(), mPlate.getProcessedImage());
 			mPlate.iplImageToBitmap();
 
 			mCurrentSequence.getPatternDetector().process(mPlate.getProcessedImage(), mPattern.getProcessedImage());
@@ -115,5 +123,24 @@ public class FrameCallback implements Camera.PreviewCallback {
 			mFrameImage.release();
 			mFrameImage = null;
 		}
+	}
+	
+	private void sendEventPlateSwitched(int index) {
+		SoundSwitching event = null;
+		switch (index) {
+		case 0:
+			 event = SoundSwitching.eventOf(InstrumentType.TONE);
+			break;
+		case 1:
+			event = SoundSwitching.eventOf(InstrumentType.DRUM);
+			break;
+		case 2:
+			event = SoundSwitching.eventOf(InstrumentType.MIX);
+			break;
+		default:
+			event = SoundSwitching.eventOf(InstrumentType.TONE);
+			break;
+		}
+		EventBus.getDefault().post(event);
 	}
 }

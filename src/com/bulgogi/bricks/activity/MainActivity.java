@@ -79,8 +79,6 @@ public class MainActivity extends AndroidApplication {
 
 	@Override
 	protected void onPause() {
-		
-		//사운드는 미리 해줘야 정상동작 함
 		if (mToneMatrix != null) {
 			mToneMatrix.releaseToneMatrix();
 		}

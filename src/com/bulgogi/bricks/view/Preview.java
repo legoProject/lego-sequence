@@ -141,11 +141,20 @@ public class Preview extends ViewGroup implements SurfaceHolder.Callback {
 	}
 
 	public static Size getOptimalPreviewSize(List<Size> sizes, int w, int h) {
-		final double ASPECT_TOLERANCE = 0.1;
-		double targetRatio = (double) w / h;
 		if (sizes == null)
 			return null;
-
+		
+		// 이미지 프로세싱을 위한 적당한 사이즈의 프리뷰를 1순위로 찾는다.
+		final int OPTIMAL_WIDTH = 800;
+		for (Size size : sizes) {
+			int diff = size.width - OPTIMAL_WIDTH;
+			if (diff >= 0 && diff < 100) {
+				return size;
+			}
+		}
+		
+		final double ASPECT_TOLERANCE = 0.1;
+		double targetRatio = (double) w / h;
 		Size optimalSize = null;
 		double minDiff = Double.MAX_VALUE;
 		int targetHeight = h;
@@ -171,6 +180,7 @@ public class Preview extends ViewGroup implements SurfaceHolder.Callback {
 				}
 			}
 		}
+		
 		return optimalSize;
 	}
 }
