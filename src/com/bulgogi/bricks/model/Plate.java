@@ -54,6 +54,6 @@ public class Plate {
 		mProcessedBitmap = Bitmap.createBitmap(gridSize, gridSize, Bitmap.Config.ARGB_8888);
 		
 		mPreprocessedImage = IplImage.create(width, height, IPL_DEPTH_8U, 4);
-		mProcessedImage = IplImage.create(gridSize, gridSize, IPL_DEPTH_8U, 4);				
+		mProcessedImage = IplImage.create(gridSize, gridSize, IPL_DEPTH_8U, 4);
 	}
 }

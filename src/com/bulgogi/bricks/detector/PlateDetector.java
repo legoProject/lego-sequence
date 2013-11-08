@@ -26,7 +26,7 @@ public class PlateDetector {
 
 	private final boolean DEBUG = true;
 	static final int mSmallAreaThreshold = 10000;
-	static final int mLargeAreaThreshold = 100000;
+	static final int mLargeAreaThreshold = 130000;
 
 	private boolean mIsEnabled;
 	private CvMemStorage mStorage;

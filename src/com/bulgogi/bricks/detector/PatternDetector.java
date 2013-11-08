@@ -38,6 +38,12 @@ public class PatternDetector {
 		}
 
 		IplImage threshed = OpenCV.getThresholdedImageHSV(src, mStartHSV, mEndHSV, blur);
+		CvScalar avgColor = cvAvg(threshed, null);
+		Log.e(TAG, "avgColor: " + avgColor.val(0));
+		if (avgColor.val(0) < 80) {
+			Log.e(TAG, "NOISE!! " + avgColor.val(0));
+			return;
+		}
 		
 		for (int y = 0; y < mCellSize; y++) {
 			for (int x = 0; x < mCellSize; x++) {

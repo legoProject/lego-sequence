@@ -35,6 +35,6 @@ public class Pattern {
 	public void recreate(int gridSize) {
 		cleanup();
 		mProcessedBitmap = Bitmap.createBitmap(gridSize, gridSize, Bitmap.Config.ARGB_8888);
-		mProcessedImage = IplImage.create(gridSize, gridSize, IPL_DEPTH_8U, 4);		
+		mProcessedImage = IplImage.create(gridSize, gridSize, IPL_DEPTH_8U, 4);
 	}
 }
