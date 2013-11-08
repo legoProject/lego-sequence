@@ -44,4 +44,19 @@ public class Events {
 			return mType;
 		}
 	}
+	
+	public static class SoundRelease {
+		
+		private SoundRelease() {
+		}
+		
+		public static SoundRelease eventOf() {
+			return new SoundRelease();
+		}
+		
+		@Override
+		public String toString() {
+			return "SoundRelease";
+		}
+	}
 }

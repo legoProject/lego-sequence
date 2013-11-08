@@ -7,7 +7,6 @@ import android.hardware.*;
 import android.hardware.Camera.Size;
 import android.os.*;
 import android.os.PowerManager.WakeLock;
-import android.provider.ContactsContract.CommonDataKinds.Event;
 import android.util.*;
 import android.view.*;
 import android.widget.*;
@@ -72,16 +71,19 @@ public class MainActivity extends AndroidApplication {
 		// Open the default i.e. the back-facing camera.
 		mCamera = Camera.open();
 		mPreview.setCamera(mCamera);
-		
-		mToneMatrix.loadSound(InstrumentType.TONE);
-        mToneMatrix.playToneMatrix();
+		if (mToneMatrix != null) {
+			mToneMatrix.loadSound(InstrumentType.TONE);
+			mToneMatrix.playToneMatrix();
+		}
 	}
 
 	@Override
 	protected void onPause() {
 		
-		//사운드는 미리 해줘야 정상동작 함 
-		mToneMatrix.releaseToneMatrix();
+		//사운드는 미리 해줘야 정상동작 함
+		if (mToneMatrix != null) {
+			mToneMatrix.releaseToneMatrix();
+		}
 		
 		releaseScreenOn();
 		// Because the Camera object is a shared resource, it's very
@@ -166,8 +168,16 @@ public class MainActivity extends AndroidApplication {
 		switchInstrument(type);
 	}
 	
+	public void onEventMainThread(Events.SoundRelease release) {
+		if (mToneMatrix != null) {
+			mToneMatrix.releaseToneMatrix();
+			mToneMatrix = null;
+		}
+	}
+	
 	public void switchInstrument(Events.SoundSwitching type) {
-		mToneMatrix.releaseToneMatrix();
+		if (mToneMatrix != null)
+			mToneMatrix.releaseToneMatrix();
 		
 		if (type.getType() == InstrumentType.MIX) {
 			mToneMatrix = new MixToneMatrix();
@@ -178,5 +188,4 @@ public class MainActivity extends AndroidApplication {
 		mToneMatrix.loadSound(type.getType());
 		mToneMatrix.playToneMatrix();
 	}
-
 }

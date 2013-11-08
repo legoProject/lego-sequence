@@ -64,7 +64,6 @@ public class SequencialToneMatrix implements ToneMatrix{
 	public void releaseToneMatrix() {
 		if (sequencer != null)
 			sequencer.cancel();
-		
 		for (int i = 0; i < tones.length; i++) {
 			this.tones[i].stop();
 			this.tones[i].dispose();

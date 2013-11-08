@@ -36,7 +36,7 @@ public class MixToneMatrix implements ToneMatrix{
 
 		for(int i = 0; i < MIX_GRID_ROW_COUNT; i++){
 			for (int j=0; j < MIX_GRID_COL_COUNT; j++){
-				String str = "sound/" + (i+1) + "x" + (j+1) + ".ogg";
+				String str = "mix/" + (i+1) + "x" + (j+1) + ".ogg";
 				//mixTones[i][j] = Gdx.audio.newSound(Gdx.files.internal(str));
 				mixTones[i][j] = Gdx.audio.newMusic(Gdx.files.internal(str));
 			}
