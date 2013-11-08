@@ -20,9 +20,6 @@ public class Plate {
 		
 		mPreprocessedImage = IplImage.create(width, height, IPL_DEPTH_8U, 4);
 		mProcessedImage = IplImage.create(Constant.GRID_SIZE, Constant.GRID_SIZE, IPL_DEPTH_8U, 4);
-		
-		cvSet(mPreprocessedImage, cvScalar(255, 0, 0, 255));
-		cvSet(mProcessedImage, cvScalar(255, 0, 0, 255));
 	}
 	
 	public void cleanup() {

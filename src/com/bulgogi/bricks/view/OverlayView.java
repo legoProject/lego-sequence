@@ -32,7 +32,7 @@ public class OverlayView extends View {
 		if (mPlatePreprocessed != null) {
 			canvas.drawBitmap(mPlatePreprocessed, 
 					new Rect(0, 0, getWidth(), getHeight()), 
-					new RectF(0, 0, 320, 240), mPaint);
+					new RectF(0, 0, Constant.GRID_SIZE, Constant.GRID_SIZE), mPaint);
 		}
 		
 		if (mPlateProcessed != null) {
