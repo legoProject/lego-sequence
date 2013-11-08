@@ -26,6 +26,8 @@ public class FrameCallback implements Camera.PreviewCallback {
 	private final CvScalar HSV_BLUE_MAX = new CvScalar(120, 255, 255, 0);
 	private final CvScalar HSV_GREEN_MIN = new CvScalar(60, 30, 30, 0);
 	private final CvScalar HSV_GREEN_MAX = new CvScalar(90, 255, 255, 0);
+	private final CvScalar HSV_CYAN_MIN = new CvScalar(90, 100, 100, 0);
+	private final CvScalar HSV_CYAN_MAX = new CvScalar(100, 255, 255, 0);
 	
 	private OverlayView mOverlayView;
 	private Bitmap mFrameBitmap;
@@ -47,8 +49,8 @@ public class FrameCallback implements Camera.PreviewCallback {
 				new Sequence(new PlateDetector(HSV_BLUE_MIN, HSV_BLUE_MAX), new PatternDetector(HSV_BLUE_MIN, HSV_BLUE_MAX)));
 		mSequences.put(Constant.SEQUENCE_TYPE.GREEN.ordinal(), 
 				new Sequence(new PlateDetector(HSV_GREEN_MIN, HSV_GREEN_MAX), new PatternDetector(HSV_GREEN_MIN, HSV_GREEN_MAX)));
-//		mSequences.put(mSequenceType.CYAN.ordinal(), 
-//				new Sequence(new PlateDetector(HSV_GREEN_MIN, HSV_GREEN_MAX), new PatternDetector(HSV_GREEN_MIN, HSV_GREEN_MAX)));
+		mSequences.put(Constant.SEQUENCE_TYPE.CYAN.ordinal(), 
+				new Sequence(new PlateDetector(HSV_CYAN_MIN, HSV_CYAN_MAX), new PatternDetector(HSV_CYAN_MIN, HSV_CYAN_MAX)));
 	}
 	
 	@Override
@@ -97,6 +99,18 @@ public class FrameCallback implements Camera.PreviewCallback {
 				mCurrentSequence = sequence;
 				if (mPreviousSequence != mCurrentSequence) {
 					mPreviousSequence = mCurrentSequence;
+					
+					if (mCurrentSequence.getPlateDetector().isLargePlate()) {
+						Log.e(TAG, "LARGE PLATE! " + i);
+						mCurrentSequence.getPatternDetector().recreate(Constant.LARGE_CELL_SIZE);
+						mPlate.recreate(width, height, Constant.LARGE_GRID_SIZE);
+						mPattern.recreate(Constant.LARGE_GRID_SIZE);
+					} else {
+						Log.e(TAG, "SMALL PLATE! " + i);
+						mCurrentSequence.getPatternDetector().recreate(Constant.SMALL_CELL_SIZE);
+						mPlate.recreate(width, height, Constant.SMALL_GRID_SIZE);
+						mPattern.recreate(Constant.SMALL_GRID_SIZE);
+					}
 					
 					Log.e(TAG, "POST SWITCHED! " + i);
 					sendEventPlateSwitched(i);

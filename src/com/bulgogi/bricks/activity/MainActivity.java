@@ -17,7 +17,6 @@ import com.bulgogi.bricks.controller.*;
 import com.bulgogi.bricks.event.*;
 import com.bulgogi.bricks.model.*;
 import com.bulgogi.bricks.sound.*;
-import com.bulgogi.bricks.utils.*;
 import com.bulgogi.bricks.view.*;
 
 import de.greenrobot.event.*;
@@ -32,7 +31,6 @@ public class MainActivity extends AndroidApplication {
 	private Plate mPlate;
 	private ToneMatrix mToneMatrix;
 	private WakeLock mWakeLock;
-	private Alarm mSoundRelaseAlarm = new Alarm();
 
 	private InstrumentType mCurrentInstrumentType = InstrumentType.TONE;
 
@@ -88,6 +86,8 @@ public class MainActivity extends AndroidApplication {
 		// Because the Camera object is a shared resource, it's very
 		// important to release it when the activity is paused.
 		if (mCamera != null) {
+			mCamera.setPreviewCallback(null);
+	        mPreview.getHolder().removeCallback(mPreview);
 			mPreview.setCamera(null);
 			mCamera.release();
 			mCamera = null;

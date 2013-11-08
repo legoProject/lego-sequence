@@ -8,8 +8,11 @@ public class Constant {
 		BLUE, GREEN, CYAN 
 	};
 	
-	public static final int CELL_SIZE = 16;
-	public static final int GRID_SIZE = CELL_SIZE * CELL_SIZE;
+	public static final int SMALL_CELL_SIZE = 8;
+	public static final int SMALL_GRID_SIZE = SMALL_CELL_SIZE * SMALL_CELL_SIZE;
+	
+	public static final int LARGE_CELL_SIZE = 16;
+	public static final int LARGE_GRID_SIZE = LARGE_CELL_SIZE * LARGE_CELL_SIZE;
 	
 	public static final int SOUND_GRID_SIZE = 16;
 	

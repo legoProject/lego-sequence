@@ -25,15 +25,18 @@ public class PlateDetector {
 	private final String TAG = PlateDetector.class.getSimpleName();
 
 	private final boolean DEBUG = true;
-	static final int mAreaThreshold = 100000;
+	static final int mSmallAreaThreshold = 10000;
+	static final int mLargeAreaThreshold = 100000;
 
 	private boolean mIsEnabled;
 	private CvMemStorage mStorage;
 	private CvScalar mStartHSV;
 	private CvScalar mEndHSV;
+	private boolean mIsLargePlate;
 
 	public PlateDetector(CvScalar startHSV, CvScalar endHSV) {
 		mIsEnabled = false;
+		mIsLargePlate = true;
 		mStorage = CvMemStorage.create();
 		mStartHSV = startHSV;
 		mEndHSV = endHSV;
@@ -41,6 +44,10 @@ public class PlateDetector {
 
 	public boolean isEnabled() {
 		return mIsEnabled;
+	}
+	
+	public boolean isLargePlate() {
+		return mIsLargePlate;
 	}
 
 	public void process(final IplImage src, IplImage preprocessed, IplImage processed) {
@@ -53,9 +60,14 @@ public class PlateDetector {
 		mIsEnabled = false;
 		while (contours != null && !contours.isNull()) {
 			double area = Math.abs(cvContourArea(contours, CV_WHOLE_SEQ, 0));
-			if (area > mAreaThreshold) {
+			if (area > mSmallAreaThreshold) {
 				CvSeq points = cvApproxPoly(contours, Loader.sizeof(CvContour.class), mStorage, CV_POLY_APPROX_DP, cvContourPerimeter(contours) * 0.05, 0);
 				if (points.total() == 4) {
+					if (area >= mLargeAreaThreshold) {
+						mIsLargePlate = true;
+					} else {
+						mIsLargePlate = false;
+					}
 					mIsEnabled = true;
 
 					cvDrawContours(preprocessed, points, new CvScalar(41, 128, 185, 255), new CvScalar(41, 128, 185, 255), 1, CV_FILLED, 8);
@@ -69,9 +81,10 @@ public class PlateDetector {
 				}
 
 				if (DEBUG) {
-					Log.d(TAG, "points.total: " + points.total() + ", area: " + area);
+					Log.d(TAG, "points.total: " + points.total());
 				}
 			}
+			Log.d(TAG, "area: " + area);
 			
 			contours = contours.h_next();
 		}
@@ -137,10 +150,18 @@ public class PlateDetector {
 			src.position(i).put(point);
 		}
 
-		dest.position(0).put(new CvPoint(0, 0));
-		dest.position(1).put(new CvPoint(Constant.GRID_SIZE, 0));
-		dest.position(2).put(new CvPoint(0, Constant.GRID_SIZE));
-		dest.position(3).put(new CvPoint(Constant.GRID_SIZE, Constant.GRID_SIZE));
+		if (mIsLargePlate) {
+			dest.position(0).put(new CvPoint(0, 0));
+			dest.position(1).put(new CvPoint(Constant.LARGE_GRID_SIZE, 0));
+			dest.position(2).put(new CvPoint(0, Constant.LARGE_GRID_SIZE));
+			dest.position(3).put(new CvPoint(Constant.LARGE_GRID_SIZE, Constant.LARGE_GRID_SIZE));	
+		} else {
+			dest.position(0).put(new CvPoint(0, 0));
+			dest.position(1).put(new CvPoint(Constant.SMALL_GRID_SIZE, 0));
+			dest.position(2).put(new CvPoint(0, Constant.SMALL_GRID_SIZE));
+			dest.position(3).put(new CvPoint(Constant.SMALL_GRID_SIZE, Constant.SMALL_GRID_SIZE));	
+		}
+		
 
 		CvMat srcMatrix = cvCreateMat(4, 2, CV_32FC1);
 		CvMat destMatrix = cvCreateMat(4, 2, CV_32FC1);

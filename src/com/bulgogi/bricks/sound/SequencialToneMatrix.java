@@ -94,6 +94,10 @@ public class SequencialToneMatrix implements ToneMatrix{
 	private void playSequencerLine(){		
 		
 		//Log.e("test", "playSequecerLine");
+		
+		if (grid[0].length == 4) {
+			return;
+		}
 
 		counter++;
 		if(counter >= GRID_COL_COUNT) { 

@@ -12,7 +12,7 @@ public class OverlayView extends View {
 	private Paint mPaint;
 	private Bitmap mPlatePreprocessed;
 	private Bitmap mPlateProcessed;
-	private Bitmap mPatternProprocessed;
+	private Bitmap mPatternProcessed;
 	
 	public OverlayView(Context context) {
 		super(context);
@@ -23,7 +23,7 @@ public class OverlayView extends View {
 	public void update(Bitmap platePreprocessed, Bitmap plateProcessed, Bitmap patternProcessed) {
 		mPlatePreprocessed = platePreprocessed; 
 		mPlateProcessed = plateProcessed;
-		mPatternProprocessed = patternProcessed;
+		mPatternProcessed = patternProcessed;
 		postInvalidate();
 	}
 	
@@ -31,20 +31,20 @@ public class OverlayView extends View {
 	protected void onDraw(Canvas canvas) {
 		if (mPlatePreprocessed != null) {
 			canvas.drawBitmap(mPlatePreprocessed, 
-					new Rect(0, 0, getWidth(), getHeight()), 
-					new RectF(0, 0, Constant.GRID_SIZE, Constant.GRID_SIZE), mPaint);
+					new Rect(0, 0, mPlatePreprocessed.getWidth(), mPlatePreprocessed.getHeight()), 
+					new RectF(0, 0, Constant.LARGE_GRID_SIZE, Constant.LARGE_GRID_SIZE), mPaint);
 		}
 		
 		if (mPlateProcessed != null) {
 			canvas.drawBitmap(mPlateProcessed, 
-					new Rect(0, 0, Constant.GRID_SIZE, Constant.GRID_SIZE), 
-					new RectF(getWidth() - Constant.GRID_SIZE, 0, getWidth(), Constant.GRID_SIZE), mPaint);
+					new Rect(0, 0, mPlateProcessed.getWidth(), mPlateProcessed.getHeight()), 
+					new RectF(getWidth() - Constant.LARGE_GRID_SIZE, 0, getWidth(), Constant.LARGE_GRID_SIZE), mPaint);
 		}
 
-		if (mPatternProprocessed != null) {
-			canvas.drawBitmap(mPatternProprocessed, 
-					new Rect(0, 0, Constant.GRID_SIZE, Constant.GRID_SIZE), 
-					new RectF(0, getHeight() - Constant.GRID_SIZE, Constant.GRID_SIZE, getHeight()), mPaint);
+		if (mPatternProcessed != null) { 
+			canvas.drawBitmap(mPatternProcessed, 
+					new Rect(0, 0, mPatternProcessed.getWidth(), mPatternProcessed.getHeight()), 
+					new RectF(0, getHeight() - Constant.LARGE_GRID_SIZE, Constant.LARGE_GRID_SIZE, getHeight()), mPaint);
 		}
 		
 		mPaint.setColor(Color.WHITE);

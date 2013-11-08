@@ -23,18 +23,24 @@ public class PatternDetector {
 	private CvScalar mStartHSV;
 	private CvScalar mEndHSV;
 	private boolean[][] mPattern;
+	private int mCellSize = Constant.LARGE_CELL_SIZE;
 
 	public PatternDetector(CvScalar startHSV, CvScalar endHSV) {
 		mStartHSV = startHSV;
 		mEndHSV = endHSV;
-		mPattern = new boolean[Constant.CELL_SIZE][Constant.CELL_SIZE];
+		mPattern = new boolean[mCellSize][mCellSize];
 	}
 
 	public void process(final IplImage src, IplImage processed) {
-		IplImage threshed = OpenCV.getThresholdedImageHSV(src, mStartHSV, mEndHSV, true);
+		boolean blur = false;
+		if (mCellSize == Constant.LARGE_CELL_SIZE) {
+			blur = true;
+		}
 
-		for (int y = 0; y < Constant.CELL_SIZE; y++) {
-			for (int x = 0; x < Constant.CELL_SIZE; x++) {
+		IplImage threshed = OpenCV.getThresholdedImageHSV(src, mStartHSV, mEndHSV, blur);
+		
+		for (int y = 0; y < mCellSize; y++) {
+			for (int x = 0; x < mCellSize; x++) {
 				int color = pickColor(threshed, x, y);
 				putArray(x, y, color);
 			}
@@ -50,19 +56,24 @@ public class PatternDetector {
 	private void putArray(int x, int y, int color) {
 		mPattern[x][y] = color > BRICK_THRESHOLD ? false : true;
 	}
+	
+	public void recreate(int cellSize) {
+		mCellSize = cellSize;
+		mPattern = new boolean[cellSize][cellSize];
+	}
 
 	private void drawGrid(IplImage src) {
 		// Draw horizontal lines
-		for (int i = 0; i < Constant.CELL_SIZE; i++) {
-			CvPoint pt1 = new CvPoint(i * Constant.CELL_SIZE, 0);
-			CvPoint pt2 = new CvPoint(i * Constant.CELL_SIZE, Constant.CELL_SIZE * Constant.CELL_SIZE - 1);
+		for (int i = 0; i < mCellSize; i++) {
+			CvPoint pt1 = new CvPoint(i * mCellSize, 0);
+			CvPoint pt2 = new CvPoint(i * mCellSize, mCellSize * mCellSize - 1);
 			cvDrawLine(src, pt1, pt2, cvScalar(22, 160, 133, 255), 1, 8, 0);
 		}
 
 		// Draw vertical lines
-		for (int i = 0; i < Constant.CELL_SIZE; i++) {
-			CvPoint pt1 = new CvPoint(0, i * Constant.CELL_SIZE);
-			CvPoint pt2 = new CvPoint(Constant.CELL_SIZE * Constant.CELL_SIZE - 1, i * Constant.CELL_SIZE);
+		for (int i = 0; i < mCellSize; i++) {
+			CvPoint pt1 = new CvPoint(0, i * mCellSize);
+			CvPoint pt2 = new CvPoint(mCellSize * mCellSize - 1, i * mCellSize);
 			cvDrawLine(src, pt1, pt2, cvScalar(22, 160, 133, 255), 1, 8, 0);
 		}
 	}
@@ -70,7 +81,7 @@ public class PatternDetector {
 	private int pickColor(final IplImage src, int x, int y) {
 		CvScalar color = new CvScalar();
 
-		CvRect rect = new CvRect(x * Constant.CELL_SIZE, y * Constant.CELL_SIZE, Constant.CELL_SIZE, Constant.CELL_SIZE);
+		CvRect rect = new CvRect(x * mCellSize, y * mCellSize, mCellSize, mCellSize);
 		cvSetImageROI(src, rect);
 		color = cvAvg(src, null);
 		cvResetImageROI(src);
@@ -84,8 +95,8 @@ public class PatternDetector {
 
 	private void dumpArray() {
 		String log = "\n********************************\n";
-		for (int y = 0; y < Constant.CELL_SIZE; y++) {
-			for (int x = 0; x < Constant.CELL_SIZE; x++) {
+		for (int y = 0; y < mCellSize; y++) {
+			for (int x = 0; x < mCellSize; x++) {
 				log += mPattern[x][y] == true ? "1 " : "0 ";
 			}
 
@@ -95,12 +106,12 @@ public class PatternDetector {
 		Log.w(TAG, log);
 	}
 
-	private boolean[][] getPatternWithoutOutline(boolean[][] pattern) {
-		int cellSize = Constant.CELL_SIZE - 2;
+	private boolean[][] getPatternForSingleNote(boolean[][] pattern) {
+		int cellSize = mCellSize - 2;
 		boolean[][] patternWithoutOutline = new boolean[cellSize][cellSize];
 		
-		for (int y = 1; y < Constant.CELL_SIZE - 1; y++) {
-			for (int x = 1; x < Constant.CELL_SIZE - 1; x++) {
+		for (int y = 1; y < mCellSize - 1; y++) {
+			for (int x = 1; x < mCellSize - 1; x++) {
 				patternWithoutOutline[x - 1][y - 1] = pattern[x][y];
 			}
 		}
@@ -108,13 +119,13 @@ public class PatternDetector {
 		return patternWithoutOutline;
 	}
 	
-	private boolean[][] getTestPatternForMix(boolean[][] pattern) {
-		int cellSize = Constant.CELL_SIZE - 12;
+	private boolean[][] getPatternForMix(boolean[][] pattern) {
+		int cellSize = mCellSize - 4;
 		boolean[][] patternWithoutOutline = new boolean[cellSize][cellSize];
 		
-		for (int y = 6; y < Constant.CELL_SIZE - 6; y++) {
-			for (int x = 6; x < Constant.CELL_SIZE - 6; x++) {
-				patternWithoutOutline[x - 6][y - 6] = pattern[x][y];
+		for (int y = 2; y < mCellSize - 2; y++) {
+			for (int x = 2; x < mCellSize - 2; x++) {
+				patternWithoutOutline[x - 2][y - 2] = pattern[x][y];
 			}
 		}
 		
@@ -122,6 +133,10 @@ public class PatternDetector {
 	}
 	
 	private void postPatternEvent() {
-		EventBus.getDefault().post(Events.PatternDetect.eventOf(getPatternWithoutOutline(mPattern)));
+		if (mCellSize == Constant.LARGE_CELL_SIZE) {
+			EventBus.getDefault().post(Events.PatternDetect.eventOf(getPatternForSingleNote(mPattern)));
+		} else {
+			EventBus.getDefault().post(Events.PatternDetect.eventOf(getPatternForMix(mPattern)));
+		}
 	}
 }
