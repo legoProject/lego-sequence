@@ -1,41 +1,37 @@
 package com.bulgogi.bricks.activity;
 
-import java.util.List;
+import java.util.*;
 
-import android.hardware.Camera;
+import android.content.*;
+import android.hardware.*;
 import android.hardware.Camera.Size;
-import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.FrameLayout;
+import android.os.*;
+import android.os.PowerManager.WakeLock;
+import android.util.*;
+import android.view.*;
+import android.widget.*;
 
-import com.badlogic.gdx.backends.android.AndroidApplication;
-import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import com.bulgogi.bricks.R;
-import com.bulgogi.bricks.controller.FrameCallback;
-import com.bulgogi.bricks.event.Events;
-import com.bulgogi.bricks.model.Pattern;
-import com.bulgogi.bricks.model.Plate;
-import com.bulgogi.bricks.sound.MatrixManager;
-import com.bulgogi.bricks.sound.SequencialToneMatrix;
-import com.bulgogi.bricks.sound.ToneMatrix;
-import com.bulgogi.bricks.view.OverlayView;
-import com.bulgogi.bricks.view.Preview;
+import com.badlogic.gdx.backends.android.*;
+import com.bulgogi.bricks.*;
+import com.bulgogi.bricks.controller.*;
+import com.bulgogi.bricks.event.*;
+import com.bulgogi.bricks.model.*;
+import com.bulgogi.bricks.sound.*;
+import com.bulgogi.bricks.view.*;
 
-import de.greenrobot.event.EventBus;
+import de.greenrobot.event.*;
 
 
 public class MainActivity extends AndroidApplication {
+	private final String TAG = MainActivity.class.getSimpleName();
+	
 	private Camera mCamera;
 	private FrameCallback mFrameCb;
 	private Preview mPreview;
 	private Pattern mPattern;
 	private Plate mPlate;
 	private ToneMatrix mToneMatrix;
+	private WakeLock mWakeLock;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,11 +41,12 @@ public class MainActivity extends AndroidApplication {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		initModel();
-		
+        
 		AndroidApplicationConfiguration cfg = new AndroidApplicationConfiguration();
 		cfg.useGL20 = false;
 		
 		initialize(new MatrixManager(), cfg);
+		
 		// Create a FrameLayout container that will hold a SurfaceView,
 		// and set it as the content of our activity.
 		FrameLayout container = new FrameLayout(this);
@@ -61,19 +58,19 @@ public class MainActivity extends AndroidApplication {
 		setContentView(container);
 		
 		mToneMatrix = new SequencialToneMatrix();
-		//mToneMatrix = new MixToneMatrix();
 		EventBus.getDefault().register(this);
 	}
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
-
+		
+		keepScreenOn();
+		
 		// Open the default i.e. the back-facing camera.
 		mCamera = Camera.open();
 		mPreview.setCamera(mCamera);
 		
-		//mToneMatrix.prepareToneMatrix(this);
 		mToneMatrix.loadSound();
         mToneMatrix.playToneMatrix();
 	}
@@ -82,6 +79,8 @@ public class MainActivity extends AndroidApplication {
 	protected void onPause() {
 		super.onPause();
 
+		releaseScreenOn();
+		
 		// Because the Camera object is a shared resource, it's very
 		// important to release it when the activity is paused.
 		if (mCamera != null) {
@@ -98,7 +97,6 @@ public class MainActivity extends AndroidApplication {
 		
 		releaseModel();
 		mFrameCb.cleanup();
-		
 	}
 
 	private void initModel() {
@@ -118,6 +116,21 @@ public class MainActivity extends AndroidApplication {
 	private void releaseModel() {
 		mPlate.cleanup();
 		mPattern.cleanup();
+	}
+	
+	private void keepScreenOn() {
+		if (mWakeLock == null) {
+			PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+			mWakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, TAG);
+			mWakeLock.acquire();
+		}
+	}
+	
+	private void releaseScreenOn() {
+		if (mWakeLock != null) {
+			mWakeLock.release();
+			mWakeLock = null;
+		}
 	}
 	
 	@Override
