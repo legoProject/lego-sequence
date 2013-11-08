@@ -20,11 +20,11 @@ import com.bulgogi.bricks.controller.FrameCallback;
 import com.bulgogi.bricks.event.Events;
 import com.bulgogi.bricks.model.Pattern;
 import com.bulgogi.bricks.model.Plate;
+import com.bulgogi.bricks.sound.MatrixManager;
 import com.bulgogi.bricks.sound.SequencialToneMatrix;
 import com.bulgogi.bricks.sound.ToneMatrix;
 import com.bulgogi.bricks.view.OverlayView;
 import com.bulgogi.bricks.view.Preview;
-import com.me.gdxtest.GdxGame;
 
 import de.greenrobot.event.EventBus;
 
@@ -40,7 +40,6 @@ public class MainActivity extends AndroidApplication {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -50,7 +49,7 @@ public class MainActivity extends AndroidApplication {
 		AndroidApplicationConfiguration cfg = new AndroidApplicationConfiguration();
 		cfg.useGL20 = false;
 		
-		initialize(new GdxGame(), cfg);
+		initialize(new MatrixManager(), cfg);
 		// Create a FrameLayout container that will hold a SurfaceView,
 		// and set it as the content of our activity.
 		FrameLayout container = new FrameLayout(this);
@@ -61,8 +60,8 @@ public class MainActivity extends AndroidApplication {
 		container.addView(overlayView);
 		setContentView(container);
 		
-		mToneMatrix = new SequencialToneMatrix(this);
-		//mToneMatrix = new MixToneMatrix(this);
+		mToneMatrix = new SequencialToneMatrix();
+		//mToneMatrix = new MixToneMatrix();
 		EventBus.getDefault().register(this);
 	}
 	

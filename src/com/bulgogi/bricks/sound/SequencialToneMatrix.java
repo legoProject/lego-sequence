@@ -4,6 +4,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
@@ -24,7 +25,7 @@ public class SequencialToneMatrix implements ToneMatrix{
 
 	private Sound[] tones;
 	
-	public SequencialToneMatrix(Context context) {
+	public SequencialToneMatrix() {
 		counter = 0;
 		grid = new boolean[GRID_ROW_COUNT][GRID_COL_COUNT];
 		initialiseGrid();
@@ -77,6 +78,8 @@ public class SequencialToneMatrix implements ToneMatrix{
 	}
 
 	private void playSequencerLine(){
+		
+		Log.e("test", "playSequecerLine");
 
 		counter++;
 		if(counter >= GRID_COL_COUNT) { 

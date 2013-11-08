@@ -24,7 +24,7 @@ public class MixToneMatrix implements ToneMatrix{
 	private Music[][] mixTones;
 	private boolean[][] played;
 	
-	public MixToneMatrix(Context context) {
+	public MixToneMatrix() {
 		mixGrid = new boolean[MIX_GRID_ROW_COUNT][MIX_GRID_COL_COUNT];
 		initializeGrid();
 	} 
