@@ -51,7 +51,7 @@ public class SequencialToneMatrix implements ToneMatrix{
 	@Override
 	public void releaseToneMatrix() {
 		for (int i = 0; i < tones.length; i++) {
-			this.tones[i].pause();
+			this.tones[i].stop();
 			this.tones[i].dispose();
 		}
 		this.tones = null;

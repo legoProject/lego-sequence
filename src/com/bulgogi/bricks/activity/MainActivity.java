@@ -43,7 +43,6 @@ public class MainActivity extends AndroidApplication {
 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
 		initModel();
 		
 		AndroidApplicationConfiguration cfg = new AndroidApplicationConfiguration();
@@ -73,15 +72,17 @@ public class MainActivity extends AndroidApplication {
 		mCamera = Camera.open();
 		mPreview.setCamera(mCamera);
 		
-		//mToneMatrix.prepareToneMatrix(this);
 		mToneMatrix.loadSound();
         mToneMatrix.playToneMatrix();
 	}
 
 	@Override
 	protected void onPause() {
+		
+		//사운드는 미리 해줘야 정상동작 함 
+		mToneMatrix.releaseToneMatrix();
+		
 		super.onPause();
-
 		// Because the Camera object is a shared resource, it's very
 		// important to release it when the activity is paused.
 		if (mCamera != null) {
@@ -89,7 +90,6 @@ public class MainActivity extends AndroidApplication {
 			mCamera.release();
 			mCamera = null;
 		}
-		mToneMatrix.releaseToneMatrix();
 	}
 	
 	@Override
@@ -146,4 +146,5 @@ public class MainActivity extends AndroidApplication {
 	    	};
 	    	mToneMatrix.changeInputGrid(patterns.getPatterns());
     }
+
 }
