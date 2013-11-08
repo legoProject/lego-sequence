@@ -30,7 +30,7 @@ public class MixToneMatrix implements ToneMatrix{
 	} 
 
 	@Override
-	public void loadSound() {
+	public void loadSound(InstrumentType type) {
 		this.mixTones = new Music[MIX_GRID_ROW_COUNT][MIX_GRID_COL_COUNT];
 		this.played = new boolean[MIX_GRID_ROW_COUNT][MIX_GRID_COL_COUNT];
 
@@ -65,10 +65,14 @@ public class MixToneMatrix implements ToneMatrix{
 
 	@Override
 	public void releaseToneMatrix() {
+		
+		if (sequencer != null)
+			sequencer.cancel();
+		
 		for (int i = 0; i < mixTones.length; i++) {
 			for (int j=0; j < mixTones[0].length; j++) {
 				if (this.mixTones[i][j].isPlaying()) {
-					this.mixTones[i][j].pause();
+					this.mixTones[i][j].stop();
 				}
 				this.mixTones[i][j].dispose();
 			}

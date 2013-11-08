@@ -7,6 +7,7 @@ import android.hardware.*;
 import android.hardware.Camera.Size;
 import android.os.*;
 import android.os.PowerManager.WakeLock;
+import android.provider.ContactsContract.CommonDataKinds.Event;
 import android.util.*;
 import android.view.*;
 import android.widget.*;
@@ -32,6 +33,8 @@ public class MainActivity extends AndroidApplication {
 	private Plate mPlate;
 	private ToneMatrix mToneMatrix;
 	private WakeLock mWakeLock;
+	
+	private InstrumentType mCurrentInstrumentType = InstrumentType.TONE;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +73,7 @@ public class MainActivity extends AndroidApplication {
 		mCamera = Camera.open();
 		mPreview.setCamera(mCamera);
 		
-		mToneMatrix.loadSound();
+		mToneMatrix.loadSound(InstrumentType.TONE);
         mToneMatrix.playToneMatrix();
 	}
 
@@ -148,16 +151,32 @@ public class MainActivity extends AndroidApplication {
 	}
 	
 	public void onEventMainThread(Events.PatternDetect patterns) {
-	    	Log.i("MainActivity","onEventMainThread : " + patterns);
 	    	
-	    	//test
-	    	boolean[][] testGrid = {
-	    			{true,false,false,true},
-	    			{true,false,false,false},
-	    			{false,true,true,false},
-	    			{true,false,false,true}
-	    	};
+	    	boolean[][] paterns = patterns.getPatterns();
+	    	if (mCurrentInstrumentType == InstrumentType.MIX 
+	    			&& paterns[0].length > 4) {
+	    		return ;
+	    	}
+	    	
 	    	mToneMatrix.changeInputGrid(patterns.getPatterns());
     }
+	
+	public void onEventMainThread(Events.SoundSwitching type) {
+		mCurrentInstrumentType = type.getType();
+		switchInstrument(type);
+	}
+	
+	public void switchInstrument(Events.SoundSwitching type) {
+		mToneMatrix.releaseToneMatrix();
+		
+		if (type.getType() == InstrumentType.MIX) {
+			mToneMatrix = new MixToneMatrix();
+		} else {
+			mToneMatrix = new SequencialToneMatrix();
+		}
+		
+		mToneMatrix.loadSound(type.getType());
+		mToneMatrix.playToneMatrix();
+	}
 
 }
