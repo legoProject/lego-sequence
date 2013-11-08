@@ -17,6 +17,7 @@ import com.bulgogi.bricks.controller.*;
 import com.bulgogi.bricks.event.*;
 import com.bulgogi.bricks.model.*;
 import com.bulgogi.bricks.sound.*;
+import com.bulgogi.bricks.utils.*;
 import com.bulgogi.bricks.view.*;
 
 import de.greenrobot.event.*;
@@ -32,6 +33,7 @@ public class MainActivity extends AndroidApplication {
 	private Plate mPlate;
 	private ToneMatrix mToneMatrix;
 	private WakeLock mWakeLock;
+	private Alarm mSoundRelaseAlarm = new Alarm();
 	
 	private InstrumentType mCurrentInstrumentType = InstrumentType.TONE;
 	
@@ -170,12 +172,23 @@ public class MainActivity extends AndroidApplication {
 	
 	public void onEventMainThread(Events.SoundRelease release) {
 		if (mToneMatrix != null) {
-			mToneMatrix.releaseToneMatrix();
-			mToneMatrix = null;
+			mSoundRelaseAlarm.setAlarm(3000);
+			mSoundRelaseAlarm.setOnAlarmListener(new OnAlarmListener() {
+				@Override
+				public void onAlarm(Alarm alarm) {
+					mToneMatrix.releaseToneMatrix();
+					mToneMatrix = null;					
+				}
+			});
 		}
 	}
 	
 	public void switchInstrument(Events.SoundSwitching type) {
+		if (mSoundRelaseAlarm.isAlarmPending()) {
+			mSoundRelaseAlarm.cancelAlarm();
+			return;
+		}
+		
 		if (mToneMatrix != null)
 			mToneMatrix.releaseToneMatrix();
 		
