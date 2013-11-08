@@ -30,13 +30,13 @@ public class MixToneMatrix implements ToneMatrix{
 	} 
 
 	@Override
-	public void loadSound() {
+	public void loadSound(InstrumentType type) {
 		this.mixTones = new Music[MIX_GRID_ROW_COUNT][MIX_GRID_COL_COUNT];
 		this.played = new boolean[MIX_GRID_ROW_COUNT][MIX_GRID_COL_COUNT];
 
 		for(int i = 0; i < MIX_GRID_ROW_COUNT; i++){
 			for (int j=0; j < MIX_GRID_COL_COUNT; j++){
-				String str = "sound/" + (i+1) + "x" + (j+1) + ".ogg";
+				String str = "mix/" + (i+1) + "x" + (j+1) + ".ogg";
 				//mixTones[i][j] = Gdx.audio.newSound(Gdx.files.internal(str));
 				mixTones[i][j] = Gdx.audio.newMusic(Gdx.files.internal(str));
 			}
@@ -65,10 +65,14 @@ public class MixToneMatrix implements ToneMatrix{
 
 	@Override
 	public void releaseToneMatrix() {
+		
+		if (sequencer != null)
+			sequencer.cancel();
+		
 		for (int i = 0; i < mixTones.length; i++) {
 			for (int j=0; j < mixTones[0].length; j++) {
 				if (this.mixTones[i][j].isPlaying()) {
-					this.mixTones[i][j].pause();
+					this.mixTones[i][j].stop();
 				}
 				this.mixTones[i][j].dispose();
 			}

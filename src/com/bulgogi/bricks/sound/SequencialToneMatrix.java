@@ -14,11 +14,13 @@ public class SequencialToneMatrix implements ToneMatrix{
 
 	public boolean grid[][];
 	
+	private final static String soundExt = ".ogg";
+	
 	private final static int GRID_COL_COUNT = 14;
 	private final static int GRID_ROW_COUNT = 14;
 	
 	private final static int TOTAL_PLAYBACK_DURATION = 2000;
-	private final static int NEXT_TONE_PLAYBACK_OFFSET = (TOTAL_PLAYBACK_DURATION / GRID_COL_COUNT) * 2;
+	private final static int NEXT_TONE_PLAYBACK_OFFSET = (TOTAL_PLAYBACK_DURATION / GRID_COL_COUNT) +50;
 	
 	private int counter;
 	private Timer sequencer;
@@ -32,15 +34,25 @@ public class SequencialToneMatrix implements ToneMatrix{
 	} 
 
 	@Override
-	public void loadSound() {
+	public void loadSound(InstrumentType type) {
+		
 		this.tones = new Sound[14];
+		
+		String path = null;
+		
+		if(type == InstrumentType.DRUM) {
+			path = "drum/d_";
+		} else if (type == InstrumentType.TONE) {
+			path = "sound/t_";
+		}
 
 		for (int i = 0; i < tones.length; i++) {
-			String str = "sound/t_" + (i+1) + ".ogg";
+			String str = path + (i+1) + soundExt;
 			tones[i] = Gdx.audio.newSound(Gdx.files.internal(str));
 		}
 	}
 
+	
 	private void playSound(int index)
 	{
 		if ((index >= 0) && (index <= this.tones.length - 1)) {
@@ -50,8 +62,10 @@ public class SequencialToneMatrix implements ToneMatrix{
 	
 	@Override
 	public void releaseToneMatrix() {
+		if (sequencer != null)
+			sequencer.cancel();
 		for (int i = 0; i < tones.length; i++) {
-			this.tones[i].pause();
+			this.tones[i].stop();
 			this.tones[i].dispose();
 		}
 		this.tones = null;

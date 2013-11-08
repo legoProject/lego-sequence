@@ -33,13 +33,14 @@ public class MainActivity extends AndroidApplication {
 	private ToneMatrix mToneMatrix;
 	private WakeLock mWakeLock;
 	
+	private InstrumentType mCurrentInstrumentType = InstrumentType.TONE;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
 		initModel();
         
 		AndroidApplicationConfiguration cfg = new AndroidApplicationConfiguration();
@@ -70,17 +71,21 @@ public class MainActivity extends AndroidApplication {
 		// Open the default i.e. the back-facing camera.
 		mCamera = Camera.open();
 		mPreview.setCamera(mCamera);
-		
-		mToneMatrix.loadSound();
-        mToneMatrix.playToneMatrix();
+		if (mToneMatrix != null) {
+			mToneMatrix.loadSound(InstrumentType.TONE);
+			mToneMatrix.playToneMatrix();
+		}
 	}
 
 	@Override
 	protected void onPause() {
-		super.onPause();
-
-		releaseScreenOn();
 		
+		//사운드는 미리 해줘야 정상동작 함
+		if (mToneMatrix != null) {
+			mToneMatrix.releaseToneMatrix();
+		}
+		
+		releaseScreenOn();
 		// Because the Camera object is a shared resource, it's very
 		// important to release it when the activity is paused.
 		if (mCamera != null) {
@@ -88,7 +93,7 @@ public class MainActivity extends AndroidApplication {
 			mCamera.release();
 			mCamera = null;
 		}
-		mToneMatrix.releaseToneMatrix();
+		super.onPause();
 	}
 	
 	@Override
@@ -148,15 +153,39 @@ public class MainActivity extends AndroidApplication {
 	}
 	
 	public void onEventMainThread(Events.PatternDetect patterns) {
-	    	Log.i("MainActivity","onEventMainThread : " + patterns);
 	    	
-	    	//test
-	    	boolean[][] testGrid = {
-	    			{true,false,false,true},
-	    			{true,false,false,false},
-	    			{false,true,true,false},
-	    			{true,false,false,true}
-	    	};
+	    	boolean[][] paterns = patterns.getPatterns();
+	    	if (mCurrentInstrumentType == InstrumentType.MIX 
+	    			&& paterns[0].length > 4) {
+	    		return ;
+	    	}
+	    	
 	    	mToneMatrix.changeInputGrid(patterns.getPatterns());
     }
+	
+	public void onEventMainThread(Events.SoundSwitching type) {
+		mCurrentInstrumentType = type.getType();
+		switchInstrument(type);
+	}
+	
+	public void onEventMainThread(Events.SoundRelease release) {
+		if (mToneMatrix != null) {
+			mToneMatrix.releaseToneMatrix();
+			mToneMatrix = null;
+		}
+	}
+	
+	public void switchInstrument(Events.SoundSwitching type) {
+		if (mToneMatrix != null)
+			mToneMatrix.releaseToneMatrix();
+		
+		if (type.getType() == InstrumentType.MIX) {
+			mToneMatrix = new MixToneMatrix();
+		} else {
+			mToneMatrix = new SequencialToneMatrix();
+		}
+		
+		mToneMatrix.loadSound(type.getType());
+		mToneMatrix.playToneMatrix();
+	}
 }
