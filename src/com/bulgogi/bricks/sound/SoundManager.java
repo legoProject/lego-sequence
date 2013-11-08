@@ -70,7 +70,7 @@ public class SoundManager {
 	public void loadSounds()
 	{
 		mSoundPoolMap.clear();
-		mSoundPoolMap.put(1, mSoundPool.load(mContext, R.raw.t_1, 1));
+/*		mSoundPoolMap.put(1, mSoundPool.load(mContext, R.raw.t_1, 1));
 		mSoundPoolMap.put(2, mSoundPool.load(mContext, R.raw.t_2, 1));
 		mSoundPoolMap.put(3, mSoundPool.load(mContext, R.raw.t_3, 1));
 		mSoundPoolMap.put(4, mSoundPool.load(mContext, R.raw.t_4, 1));	
@@ -83,7 +83,7 @@ public class SoundManager {
 		mSoundPoolMap.put(11, mSoundPool.load(mContext, R.raw.t_11, 1));
 		mSoundPoolMap.put(12, mSoundPool.load(mContext, R.raw.t_12, 1));	
 		mSoundPoolMap.put(13, mSoundPool.load(mContext, R.raw.t_13, 1));
-		mSoundPoolMap.put(14, mSoundPool.load(mContext, R.raw.t_14, 1));
+		mSoundPoolMap.put(14, mSoundPool.load(mContext, R.raw.t_14, 1));*/
 	}
 
 	/**

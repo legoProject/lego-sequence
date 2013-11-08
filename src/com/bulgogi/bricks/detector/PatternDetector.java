@@ -108,6 +108,19 @@ public class PatternDetector {
 		return patternWithoutOutline;
 	}
 	
+	private boolean[][] getTestPatternForMix(boolean[][] pattern) {
+		int cellSize = Constant.CELL_SIZE - 12;
+		boolean[][] patternWithoutOutline = new boolean[cellSize][cellSize];
+		
+		for (int y = 6; y < Constant.CELL_SIZE - 6; y++) {
+			for (int x = 6; x < Constant.CELL_SIZE - 6; x++) {
+				patternWithoutOutline[x - 6][y - 6] = pattern[x][y];
+			}
+		}
+		
+		return patternWithoutOutline;
+	}
+	
 	private void postPatternEvent() {
 		EventBus.getDefault().post(Events.PatternDetect.eventOf(getPatternWithoutOutline(mPattern)));
 	}
