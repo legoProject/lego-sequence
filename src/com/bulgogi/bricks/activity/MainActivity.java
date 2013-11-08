@@ -22,10 +22,9 @@ import com.bulgogi.bricks.view.*;
 
 import de.greenrobot.event.*;
 
-
 public class MainActivity extends AndroidApplication {
 	private final String TAG = MainActivity.class.getSimpleName();
-	
+
 	private Camera mCamera;
 	private FrameCallback mFrameCb;
 	private Preview mPreview;
@@ -34,9 +33,9 @@ public class MainActivity extends AndroidApplication {
 	private ToneMatrix mToneMatrix;
 	private WakeLock mWakeLock;
 	private Alarm mSoundRelaseAlarm = new Alarm();
-	
+
 	private InstrumentType mCurrentInstrumentType = InstrumentType.TONE;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -44,12 +43,12 @@ public class MainActivity extends AndroidApplication {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		initModel();
-        
+
 		AndroidApplicationConfiguration cfg = new AndroidApplicationConfiguration();
 		cfg.useGL20 = false;
-		
+
 		initialize(new MatrixManager(), cfg);
-		
+
 		// Create a FrameLayout container that will hold a SurfaceView,
 		// and set it as the content of our activity.
 		FrameLayout container = new FrameLayout(this);
@@ -59,17 +58,17 @@ public class MainActivity extends AndroidApplication {
 		container.addView(mPreview);
 		container.addView(overlayView);
 		setContentView(container);
-		
+
 		mToneMatrix = new SequencialToneMatrix();
 		EventBus.getDefault().register(this);
 	}
-	
+
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
+
 		keepScreenOn();
-		
+
 		// Open the default i.e. the back-facing camera.
 		mCamera = Camera.open();
 		mPreview.setCamera(mCamera);
@@ -84,7 +83,7 @@ public class MainActivity extends AndroidApplication {
 		if (mToneMatrix != null) {
 			mToneMatrix.releaseToneMatrix();
 		}
-		
+
 		releaseScreenOn();
 		// Because the Camera object is a shared resource, it's very
 		// important to release it when the activity is paused.
@@ -95,11 +94,11 @@ public class MainActivity extends AndroidApplication {
 		}
 		super.onPause();
 	}
-	
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		
+
 		releaseModel();
 		mFrameCb.cleanup();
 	}
@@ -108,21 +107,21 @@ public class MainActivity extends AndroidApplication {
 		Camera camera = Camera.open();
 		DisplayMetrics dm = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(dm);
-		
+
 		List<Size> supportedPreviewSizes = camera.getParameters().getSupportedPreviewSizes();
 		Camera.Size size = Preview.getOptimalPreviewSize(supportedPreviewSizes, dm.widthPixels, dm.heightPixels);
-		
+
 		mPlate = new Plate(size.width, size.height);
 		mPattern = new Pattern();
-		
+
 		camera.release();
 	}
-	
+
 	private void releaseModel() {
 		mPlate.cleanup();
 		mPattern.cleanup();
 	}
-	
+
 	private void keepScreenOn() {
 		if (mWakeLock == null) {
 			PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -130,14 +129,14 @@ public class MainActivity extends AndroidApplication {
 			mWakeLock.acquire();
 		}
 	}
-	
+
 	private void releaseScreenOn() {
 		if (mWakeLock != null) {
 			mWakeLock.release();
 			mWakeLock = null;
 		}
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.ac_main, menu);
@@ -151,42 +150,30 @@ public class MainActivity extends AndroidApplication {
 			return super.onOptionsItemSelected(item);
 		}
 	}
-	
+
 	public void onEventMainThread(Events.PatternDetect patterns) {
-	    	
-	    	boolean[][] paterns = patterns.getPatterns();
-	    	if (mCurrentInstrumentType == InstrumentType.MIX 
-	    			&& paterns[0].length > 4) {
-	    		return ;
-	    	}
-	    	
-	    	mToneMatrix.changeInputGrid(patterns.getPatterns());
-    }
-	
+
+		boolean[][] paterns = patterns.getPatterns();
+		if (mCurrentInstrumentType == InstrumentType.MIX && paterns[0].length > 4) {
+			return;
+		}
+
+		mToneMatrix.changeInputGrid(patterns.getPatterns());
+	}
+
 	public void onEventMainThread(Events.SoundSwitching type) {
 		mCurrentInstrumentType = type.getType();
 		switchInstrument(type);
 	}
-	
+
 	public void onEventMainThread(Events.SoundRelease release) {
 		if (mToneMatrix != null) {
-			mSoundRelaseAlarm.setAlarm(3000);
-			mSoundRelaseAlarm.setOnAlarmListener(new OnAlarmListener() {
-				@Override
-				public void onAlarm(Alarm alarm) {
-					mToneMatrix.releaseToneMatrix();
-					mToneMatrix = null;					
-				}
-			});
+			mToneMatrix.releaseToneMatrix();
+			mToneMatrix = null;					
 		}
 	}
 	
 	public void switchInstrument(Events.SoundSwitching type) {
-		if (mSoundRelaseAlarm.isAlarmPending()) {
-			mSoundRelaseAlarm.cancelAlarm();
-			return;
-		}
-		
 		if (mToneMatrix != null)
 			mToneMatrix.releaseToneMatrix();
 		

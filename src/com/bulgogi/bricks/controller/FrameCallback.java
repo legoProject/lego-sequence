@@ -12,6 +12,7 @@ import com.bulgogi.bricks.event.Events.SoundRelease;
 import com.bulgogi.bricks.event.Events.SoundSwitching;
 import com.bulgogi.bricks.model.*;
 import com.bulgogi.bricks.sound.*;
+import com.bulgogi.bricks.utils.*;
 import com.bulgogi.bricks.view.*;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -34,6 +35,7 @@ public class FrameCallback implements Camera.PreviewCallback {
 	private SparseArray<Sequence> mSequences;
 	private Sequence mPreviousSequence;
 	private Sequence mCurrentSequence;
+	private Alarm mAlarm = new Alarm();
 	
 	public FrameCallback(OverlayView overlayView, Plate plate, Pattern pattern) {
 		mOverlayView = overlayView;
@@ -85,11 +87,18 @@ public class FrameCallback implements Camera.PreviewCallback {
 			sequence.getPlateDetector().process(mFrameImage, mPlate.getPreprocessedImage(), mPlate.getProcessedImage());
 			if (sequence.isEnabled()) {
 				mStopped = false;
+				
+				if (mAlarm.isAlarmPending()) {
+					Log.e(TAG, "ALARM CANCEL! " + i);
+					mAlarm.cancelAlarm();
+					break;
+				}
+				
 				mCurrentSequence = sequence;
 				if (mPreviousSequence != mCurrentSequence) {
 					mPreviousSequence = mCurrentSequence;
 					
-					Log.i(TAG, "POST SWITCHED! " + i);
+					Log.e(TAG, "POST SWITCHED! " + i);
 					sendEventPlateSwitched(i);
 				}
 				
@@ -97,14 +106,19 @@ public class FrameCallback implements Camera.PreviewCallback {
 			}
 		}
 		
-		if (mStopped && mCurrentSequence != null) {
-			mCurrentSequence = null;
-			mPreviousSequence = null;
-			
-			Log.i(TAG, "POST STOPPED!");
-			EventBus.getDefault().post(SoundRelease.eventOf());
+		if (mStopped && mCurrentSequence != null && !mAlarm.isAlarmPending()) {
+			Log.e(TAG, "POST STOPPED!");
+			mAlarm.setAlarm(3000);
+			mAlarm.setOnAlarmListener(new OnAlarmListener() {
+				@Override
+				public void onAlarm(Alarm alarm) {
+					mCurrentSequence = null;
+					mPreviousSequence = null;
+					
+					EventBus.getDefault().post(SoundRelease.eventOf());		
+				}
+			});
 		}
-		
 		
 		if (mCurrentSequence != null) {
 			mPlate.iplImageToBitmap();
