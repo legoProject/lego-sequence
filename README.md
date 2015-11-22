@@ -15,6 +15,6 @@
  * 레고 2x2 흰색 브릭 N개
 
 ## 영상
-[![Youtube](https://dl.dropboxusercontent.com/u/539401/lego-metrix/lego-sequence-youtube.png)](http://www.youtube.com/watch?v=JzAZxlA0CNs)
+[![Youtube](https://dl.dropboxusercontent.com/u/539401/lego-metrix/lego-sequence-youtube.png)](https://youtu.be/2tn0XLckkbw)
 
 
