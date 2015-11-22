@@ -11,8 +11,8 @@
 ## 준비물
  * 안드로이드폰
  * 휴대폰 거치대
- * 레고 32x32 파란색, 녹색 플레이트, 16x16 하늘색 플레이트
- * 레고 2x2 흰색 브릭 
+ * 레고 32x32 파란색 1개, 녹색 플레이트 1개, 16x16 하늘색 플레이트 1개
+ * 레고 2x2 흰색 브릭 N개
 
 ## 영상
 [![Youtube](https://dl.dropboxusercontent.com/u/539401/lego-metrix/lego-sequence-youtube.png)](http://www.youtube.com/watch?v=JzAZxlA0CNs)
