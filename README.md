@@ -1,6 +1,6 @@
 Lego Sequence
 ===========
-[![screenshot#1](https://dl.dropboxusercontent.com/u/539401/lego-metrix/lego_sequence.jpg)]
+![screenshot#1](https://dl.dropboxusercontent.com/u/539401/lego-metrix/lego_sequence.jpg)
 
 레고 시퀀스는 레고와 안드로이드를 좋아하는 두명의 개발자가 카카오 사내 해커톤에서 만든 프로젝트입니다. 사용자가
 단순히 보고 듣는 것을 넘어서서 실제 레고 브릭을 이동시켜 가상의 악기를 연주할 수 있는 것이 특징입니다.
@@ -8,7 +8,7 @@ Lego Sequence
 ### 설명
 안드로이드 폰에 장착된 후면 카메라로 입력되는 영상에서 레고 플레이트와 브릭의 위치를 실시간으로 감지해서 내장된 음원을 재생합니다. 플레이트의 세로 축이 음계를 가로 축은 시간을 의미합니다. 즉, 브릭 하나하나가 음과 시간을 나타내고 이 음의 집합이 반복 재생되면서 사용자 고유의 사운드를 만듭니다. 레고 플레이트의 색상에 따라 연주되는 음원이 다른데, 파란색 플레이트는 멜로디, 녹색 플레이트는 드럼을 하늘색 플레이트는 EDM을 연주할 수 있습니다.
 
-[![screenshot#2](https://dl.dropboxusercontent.com/u/539401/lego-metrix/KakaoTalk_Photo_2015-11-22-20-43-34_71.jpeg)]
+![screenshot#2](https://dl.dropboxusercontent.com/u/539401/lego-metrix/KakaoTalk_Photo_2015-11-22-20-43-34_71.jpeg)
 ### 준비물
  * 안드로이드폰
  * 휴대폰 거치대
