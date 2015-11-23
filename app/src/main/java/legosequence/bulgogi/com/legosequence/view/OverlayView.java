@@ -1,10 +1,15 @@
 package legosequence.bulgogi.com.legosequence.view;
 
-import android.content.*;
-import android.graphics.*;
-import android.view.*;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.view.View;
 
-import com.bulgogi.bricks.config.*;
+import legosequence.bulgogi.com.legosequence.config.Constant;
 
 public class OverlayView extends View {
     private final String TAG = OverlayView.class.getSimpleName();
