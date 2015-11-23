@@ -17,4 +17,9 @@
 ## 영상
 [![Youtube](https://dl.dropboxusercontent.com/u/539401/lego-metrix/lego-sequence-youtube.png)](https://youtu.be/2tn0XLckkbw)
 
+## 문의
+| 한정일 | 정우람 |
+|:-------------:|:-------------:|
+| <img src="https://dl.dropboxusercontent.com/u/539401/lego-metrix/img/jihan_180.jpeg"> | <img src="https://dl.dropboxusercontent.com/u/539401/lego-metrix/img/kai_460.jpg"> |
+| jungil.han@gmail.com | iam1492@gmail.com |
 
