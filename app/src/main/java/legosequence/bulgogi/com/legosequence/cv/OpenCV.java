@@ -6,6 +6,9 @@ import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.CvScalar;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 
+import static org.bytedeco.javacpp.opencv_core.*;
+import static org.bytedeco.javacpp.opencv_imgproc.*;
+
 public class OpenCV {
     static public void IplImageToBitmap(final opencv_core.IplImage image, final Bitmap bitmap) {
         bitmap.copyPixelsFromBuffer(image.getByteBuffer());
@@ -30,7 +33,7 @@ public class OpenCV {
 
         if (blur) {
             // smooth out the thresholded image
-            cvSmooth(threshed, threshed, CV_MEDIAN, 13);
+            cvSmooth(threshed, threshed, CV_MEDIAN, 13, 0, 0, 0);
         }
 
         // return memory from the images we're done with

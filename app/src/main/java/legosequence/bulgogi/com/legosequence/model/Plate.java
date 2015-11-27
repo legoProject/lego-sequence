@@ -6,6 +6,8 @@ import legosequence.bulgogi.com.legosequence.config.Constant;
 import legosequence.bulgogi.com.legosequence.cv.OpenCV;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 
+import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_8U;
+
 public class Plate {
     private Bitmap mPreprocessedBitmap;
     private Bitmap mProcessedBitmap;

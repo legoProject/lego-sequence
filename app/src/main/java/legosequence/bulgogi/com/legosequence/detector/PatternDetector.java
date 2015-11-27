@@ -8,6 +8,9 @@ import legosequence.bulgogi.com.legosequence.config.Constant;
 import legosequence.bulgogi.com.legosequence.cv.OpenCV;
 import legosequence.bulgogi.com.legosequence.event.Events;
 
+import static org.bytedeco.javacpp.opencv_core.*;
+import static org.bytedeco.javacpp.opencv_imgproc.*;
+
 public class PatternDetector {
     private final String TAG = PatternDetector.class.getSimpleName();
 

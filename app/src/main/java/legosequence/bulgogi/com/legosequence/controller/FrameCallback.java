@@ -5,6 +5,8 @@ import android.hardware.Camera;
 import android.util.Log;
 import android.util.SparseArray;
 
+import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_8U;
+
 import org.bytedeco.javacpp.opencv_core.CvScalar;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 
@@ -21,7 +23,6 @@ import legosequence.bulgogi.com.legosequence.sound.InstrumentType;
 import legosequence.bulgogi.com.legosequence.utils.Alarm;
 import legosequence.bulgogi.com.legosequence.utils.OnAlarmListener;
 import legosequence.bulgogi.com.legosequence.view.OverlayView;
-
 
 public class FrameCallback implements Camera.PreviewCallback {
     private final String TAG = FrameCallback.class.getSimpleName();
@@ -50,11 +51,11 @@ public class FrameCallback implements Camera.PreviewCallback {
 
         mSequences = new SparseArray<Sequence>();
         mSequences.put(Constant.SEQUENCE_TYPE.BLUE.ordinal(),
-                new Sequence(new PlateDetector(HSV_BLUE_MIN, HSV_BLUE_MAX), new PatternDetector(HSV_BLUE_MIN, HSV_BLUE_MAX)));
+            new Sequence(new PlateDetector(HSV_BLUE_MIN, HSV_BLUE_MAX), new PatternDetector(HSV_BLUE_MIN, HSV_BLUE_MAX)));
         mSequences.put(Constant.SEQUENCE_TYPE.GREEN.ordinal(),
-                new Sequence(new PlateDetector(HSV_GREEN_MIN, HSV_GREEN_MAX), new PatternDetector(HSV_GREEN_MIN, HSV_GREEN_MAX)));
+            new Sequence(new PlateDetector(HSV_GREEN_MIN, HSV_GREEN_MAX), new PatternDetector(HSV_GREEN_MIN, HSV_GREEN_MAX)));
         mSequences.put(Constant.SEQUENCE_TYPE.CYAN.ordinal(),
-                new Sequence(new PlateDetector(HSV_CYAN_MIN, HSV_CYAN_MAX), new PatternDetector(HSV_CYAN_MIN, HSV_CYAN_MAX)));
+            new Sequence(new PlateDetector(HSV_CYAN_MIN, HSV_CYAN_MAX), new PatternDetector(HSV_CYAN_MIN, HSV_CYAN_MAX)));
     }
 
     @Override

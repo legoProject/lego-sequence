@@ -21,6 +21,8 @@ import java.util.Comparator;
 import legosequence.bulgogi.com.legosequence.config.Constant;
 import legosequence.bulgogi.com.legosequence.cv.OpenCV;
 
+import static org.bytedeco.javacpp.opencv_core.*;
+import static org.bytedeco.javacpp.opencv_imgproc.*;
 
 public class PlateDetector {
     private final String TAG = PlateDetector.class.getSimpleName();
@@ -168,12 +170,12 @@ public class PlateDetector {
         CvMat destMatrix = cvCreateMat(4, 2, CV_32FC1);
 
         for (int i = 0; i < 4; i++) {
-            double[] point = src.position(i).get();
+            float point = src.position(i).get();
             srcMatrix.put(point);
         }
 
         for (int i = 0; i < 4; i++) {
-            double[] point = dest.position(i).get();
+            float point = dest.position(i).get();
             destMatrix.put(point);
         }
 

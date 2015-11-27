@@ -8,6 +8,8 @@ import org.bytedeco.javacpp.opencv_core.IplImage;
 import legosequence.bulgogi.com.legosequence.config.Constant;
 import legosequence.bulgogi.com.legosequence.cv.OpenCV;
 
+import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_8U;
+
 public class Pattern {
     private Bitmap mProcessedBitmap;
     private IplImage mProcessedImage;
